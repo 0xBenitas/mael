@@ -1,33 +1,33 @@
 {
-  "analysis": "Le processus montre une instabilité chronique avec des scores oscillant entre échec et partiel (33-67). La tendance légèrement positive (+13) masque une variance élevée qui indique un manque de consistance. Les mutations précédentes (FONDI, évaluation multi-niveaux, apprentissage adaptatif) n'ont pas stabilisé les performances. Le système semble manquer de cohérence entre ses phases et de mécanismes de validation robustes.",
-  "health": "degrading",
+  "analysis": "Le système est en échec critique avec 4 échecs consécutifs après l'itération 1. Les mutations récentes (#13 et #14) n'ont pas encore été évaluées mais la tendance reste négative. Le problème semble structurel : les phases sont trop isolées et manquent de cohérence. La phase AGIR ne bénéficie pas des apprentissages précédents, créant un cycle de répétition des mêmes erreurs.",
+  "health": "critical",
   "mutations": [
     {
       "type": "structure",
-      "target": "Séquence des phases",
-      "before_summary": "Séquence linéaire AGIR → ÉVALUER → APPRENDRE → MUTER",
-      "after": "Ajout d'une phase VALIDER entre AGIR et ÉVALUER : vérification automatique de la conformité de base (syntaxe, structure, critères minimaux) avant évaluation qualitative. Si VALIDER échoue, retour immédiat à AGIR avec diagnostic précis.",
-      "reason": "Les échecs répétés suggèrent des erreurs de base non détectées qui polluent l'évaluation",
-      "expected_impact": "Réduction des scores erratiques en filtrant les erreurs grossières avant évaluation",
+      "target": "Architecture du processus",
+      "before_summary": "Phases séquentielles isolées : AGIR → ÉVALUER → APPRENDRE → MUTER",
+      "after": "Phase AGIR enrichie avec contexte d'apprentissage : injection automatique des 3 derniers échecs et leurs causes dans le prompt AGIR. Format : 'Échecs récents à éviter : [liste des erreurs communes]'",
+      "reason": "Les phases n'apprennent pas les unes des autres, répétant les mêmes erreurs",
+      "expected_impact": "Réduction des erreurs récurrentes par apprentissage contextuel",
       "confidence": 0.8
     },
     {
       "type": "heuristic",
-      "target": "Seuil de mutation",
-      "before_summary": "Mutation après chaque itération",
-      "after": "Mutation uniquement si : score < 60 OU variance des 3 derniers scores > 20 OU 2 échecs consécutifs. Sinon, consolidation du processus actuel.",
-      "reason": "Les mutations trop fréquentes empêchent la stabilisation du système",
-      "expected_impact": "Stabilisation des performances en évitant la sur-mutation",
+      "target": "Seuil de mutation critique",
+      "before_summary": "Mutation si score < 60 OU variance > 20 OU 2 échecs consécutifs",
+      "after": "En mode critique (3+ échecs consécutifs) : mutation forcée à chaque itération + reset des heuristiques précédentes. Retour au mode normal après 2 succès consécutifs.",
+      "reason": "Le système est bloqué dans un état d'échec et a besoin d'exploration agressive",
+      "expected_impact": "Sortie du cycle d'échec par exploration intensive",
       "confidence": 0.7
     },
     {
-      "type": "prompt",
-      "target": "Phase AGIR",
-      "before_summary": "Prompt générique demandant d'exécuter la tâche",
-      "after": "Phase AGIR — Itération {iteration}\n\nAVANT D'AGIR :\n1. Lis TOUS les critères d'acceptation\n2. Identifie les contraintes techniques\n3. Planifie ta réponse en 3 étapes max\n\nTâche: {task_title}: {task_description}\nCritères: {task_acceptance_criteria}\n\nRéponds en suivant EXACTEMENT le format demandé. Vérifie ta réponse avant envoi.",
-      "reason": "Forcer une phase de planification pour réduire les erreurs de conformité",
-      "expected_impact": "Amélioration de la conformité de base et réduction des échecs",
-      "confidence": 0.9
+      "type": "criteria",
+      "target": "Métriques d'évaluation",
+      "before_summary": "Évaluation binaire PASS/FAIL avec score numérique",
+      "after": "Évaluation graduée : EXCELLENT (90-100), GOOD (70-89), ACCEPTABLE (50-69), POOR (30-49), FAIL (0-29). Seuil de succès abaissé à 50 temporairement en mode critique.",
+      "reason": "L'évaluation trop stricte peut masquer les progrès partiels et décourager l'amélioration",
+      "expected_impact": "Meilleure granularité pour détecter les améliorations progressives",
+      "confidence": 0.6
     }
   ]
 }

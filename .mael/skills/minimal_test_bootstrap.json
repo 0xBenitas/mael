@@ -1,0 +1,11 @@
+{
+  "name": "minimal_test_bootstrap",
+  "category": "test",
+  "description": "Structure minimale pour bootstrapper les tests : 1 test trivial (import), 1 test métier simple. Valide l'exécutabilité avant d'ajouter de la complexité.",
+  "code": "# tests/test_summarize.py\nimport pytest\nfrom summarize import summarize\n\ndef test_import_works():\n    \"\"\"Validate that the module imports and is callable.\"\"\"\n    assert callable(summarize)\n\ndef test_simple_case():\n    \"\"\"Test with minimal input.\"\"\"\n    result = summarize('hello world')\n    assert isinstance(result, str)\n    assert len(result) > 0",
+  "score": 22,
+  "source_iteration": 6,
+  "created": "2026-04-03T23:09:02.370233",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

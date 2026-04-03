@@ -15,6 +15,9 @@ PHASE_ACT = """Phase AGIR — Itération {iteration}
 {task_title}: {task_description}
 Critères: {task_acceptance}
 
+## Skills disponibles (réutilise-les si pertinent)
+{skills}
+
 ## Learnings critiques
 {learnings}
 
@@ -101,7 +104,16 @@ Réponds en JSON strict :
     }}
   ],
   "patterns_seen_again": ["learning existant vu à nouveau, texte exact"],
-  "promote_to_claude_md": ["learning assez solide pour être promu"]
+  "promote_to_claude_md": ["learning assez solide pour être promu"],
+  "skills_to_save": [
+    {{
+      "name": "identifiant_court",
+      "code": "snippet Python réutilisable extrait de cette itération",
+      "category": "pattern|utility|test|prompt",
+      "description": "ce que fait ce skill"
+    }}
+  ],
+  "meta_reasoning": "Comment j'aurais pu résoudre cette tâche en 50% moins d'étapes ?"
 }}
 """
 

@@ -171,3 +171,24 @@ Critères: {task_acceptance_criteria}
 Réponds en suivant EXACTEMENT le format demandé. Vérifie ta réponse avant envoi.
 **Raison** : Forcer une phase de planification pour réduire les erreurs de conformité
 **Résultat** : *(en attente d'évaluation)*
+
+### Mutation #15 — Iteration 5 — structure
+**Cible** : Architecture du processus
+**Avant** : Phases séquentielles isolées : AGIR → ÉVALUER → APPRENDRE → MUTER
+**Après** : Phase AGIR enrichie avec contexte d'apprentissage : injection automatique des 3 derniers échecs et leurs causes dans le prompt AGIR. Format : 'Échecs récents à éviter : [liste des erreurs communes]'
+**Raison** : Les phases n'apprennent pas les unes des autres, répétant les mêmes erreurs
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #16 — Iteration 5 — heuristic
+**Cible** : Seuil de mutation critique
+**Avant** : Mutation si score < 60 OU variance > 20 OU 2 échecs consécutifs
+**Après** : En mode critique (3+ échecs consécutifs) : mutation forcée à chaque itération + reset des heuristiques précédentes. Retour au mode normal après 2 succès consécutifs.
+**Raison** : Le système est bloqué dans un état d'échec et a besoin d'exploration agressive
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #17 — Iteration 5 — criteria
+**Cible** : Métriques d'évaluation
+**Avant** : Évaluation binaire PASS/FAIL avec score numérique
+**Après** : Évaluation graduée : EXCELLENT (90-100), GOOD (70-89), ACCEPTABLE (50-69), POOR (30-49), FAIL (0-29). Seuil de succès abaissé à 50 temporairement en mode critique.
+**Raison** : L'évaluation trop stricte peut masquer les progrès partiels et décourager l'amélioration
+**Résultat** : *(en attente d'évaluation)*

@@ -2,42 +2,64 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "ModuleNotFoundError lors de pytest indique un problème de PYTHONPATH ou de structure du projet, pas une erreur de test. Avant de régénérer des tests, exécuter: (1) 'python -c \"import sys; print(sys.path)\"' pour vérifier le chemin, (2) 'ls -la' pour confirmer la structure (tools/ doit être au même niveau que tests/), (3) 'python -m pytest --collect-only tests/' pour diagnostiquer l'import avant l'exécution.",
+      "learning": "ModuleNotFoundError lors de l'import dans les tests = problème d'infrastructure, pas de logique. Avant d'écrire une seule assertion, créer un conftest.py qui importe le module cible et échoue explicitement si l'import échoue. Cela détecte les dépendances manquantes AVANT la rédaction des tests.",
       "confidence": "haute",
-      "reusable_for": "Tout test échouant avec ModuleNotFoundError dans un projet avec structure de répertoires"
+      "reusable_for": "Toute tâche 'créer des tests' où le module à tester n'existe pas encore ou n'est pas accessible"
+    },
+    {
+      "category": "optimization",
+      "learning": "Ordre d'exécution strict pour 'créer tests qui passent' : (1) conftest.py avec import du module, (2) test_*.py avec 1 test trivial (assert True), (3) 'pytest --collect-only' doit retourner N items, (4) 'pytest' doit passer, (5) ajouter assertions métier. Valider l'exécutabilité à chaque étape avant d'ajouter de la complexité.",
+      "confidence": "haute",
+      "reusable_for": "Toute tâche de création de tests où le critère d'acceptation est 'X tests verts'"
     },
     {
       "category": "gotcha",
-      "learning": "Un fichier test tronqué (dernière méthode incomplète) peut coexister avec un nouveau fichier généré. Avant de générer tests/test_summarize.py, exécuter: 'rm -f tests/test_summarize.py' ou 'git status tests/' pour détecter les fichiers partiels. Vérifier 'tail -5 tests/test_summarize.py' après génération pour confirmer que le fichier se termine par une ligne complète (pas de 'def test_' orphelin).",
+      "learning": "Un test bien structuré (3 cas d'entrée/sortie, assertions claires, idiomatique) mais non-exécutable (import cassé) = 0 points. L'exécutabilité est le critère #1 avant la couverture, la sophistication ou la qualité du code. Ne jamais sacrifier 'ça marche' pour 'c'est beau'.",
       "confidence": "haute",
-      "reusable_for": "Prévention des fichiers tronqués lors de régénération de tests"
+      "reusable_for": "Évaluation de toute tâche avec critère d'acceptation 'le code doit s'exécuter'"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "pytest.fail() dans un test masque le vrai problème (import cassé) derrière une assertion explicite. Préférer laisser l'exception d'import remonter naturellement ou la capturer dans conftest.py avec un message clair. Cela rend le diagnostic plus rapide.",
+      "confidence": "moyenne",
+      "reusable_for": "Gestion des erreurs dans les tests, surtout pour les problèmes d'infrastructure"
     },
     {
       "category": "optimization",
-      "learning": "Ajouter une étape de validation post-génération obligatoire: (1) 'python -m py_compile tests/test_summarize.py' pour valider la syntaxe, (2) 'pytest tests/test_summarize.py --collect-only -q' pour vérifier que N tests sont collectés (N > 0), (3) 'pytest tests/test_summarize.py -v --tb=line' avec timeout 10s. Si collecte = 0 ou import échoue, arrêter et diagnostiquer AVANT itération suivante.",
+      "learning": "Avant de créer test_*.py, toujours exécuter 'pytest --collect-only' sur le répertoire tests/. Si 0 items collectés, c'est un problème d'infrastructure (import, nommage, structure). Cela économise 2-3 itérations de debugging.",
       "confidence": "haute",
-      "reusable_for": "Validation rapide de tout fichier test généré avant acceptation"
-    },
-    {
-      "category": "success_pattern",
-      "learning": "La structure logique des tests (classes TestSummarize, TestSplitSentences avec docstrings et assertions) était correcte. Le problème était technique (import + fichier tronqué). Réutiliser la même structure de génération mais ajouter la validation post-génération. Ne pas modifier la logique des tests, corriger l'environnement d'exécution.",
-      "confidence": "haute",
-      "reusable_for": "Itérations futures sur test_summarize.py ou tests similaires"
-    },
-    {
-      "category": "optimization",
-      "learning": "Avant de générer un nouveau fichier test, exécuter: 'git diff tests/test_summarize.py' ou 'git status tests/' pour voir si le fichier existe et son état. Si le fichier est partiellement commité ou tronqué, faire 'git checkout tests/test_summarize.py' ou 'rm tests/test_summarize.py' pour repartir de zéro.",
-      "confidence": "haute",
-      "reusable_for": "Gestion des fichiers test dans un dépôt Git"
+      "reusable_for": "Diagnostic rapide de problèmes de collection pytest"
     }
   ],
   "patterns_seen_again": [
-    "Un fichier test tronqué (dernière méthode incomplète : 'def test_split_empty_string(self): \"\"\"Test s') dans le même répertoire peut être silencieusement ignoré par pytest lors de la collecte, masquant le vrai problème. Toujours vérifier 'tail -20 test_*.py' après génération.",
-    "Avant de régénérer un fichier test complet après un échec, exécuter : (1) 'ls -la tests/' pour lister les fichiers, (2) 'wc -l test_*.py' pour détecter les fichiers tronqués, (3) 'python -m py_compile test_*.py' pour valider la syntaxe. Supprimer ou corriger les fichiers cassés AVANT nouvelle génération.",
-    "Après génération, exécuter immédiatement 'pytest tests/test_*.py -v --tb=short' avec un timeout court (5s). Si 'collected 0 items', arrêter et diagnostiquer avant itération suivante. Ne pas ajouter plus de tests tant que la collecte échoue."
+    "Avant d'écrire des tests, valider que l'infrastructure d'import fonctionne : créer un conftest.py minimal qui importe le module cible et échoue explicitement si l'import échoue.",
+    "pytest ne collecte 0 items quand : (1) le fichier test_*.py n'existe pas ou n'est pas trouvé, (2) les imports échouent silencieusement, (3) aucune fonction test_*() n'existe. Toujours vérifier la sortie de 'pytest --collect-only' avant de lancer les tests.",
+    "Ordre d'exécution pour une tâche 'créer tests' : (1) créer conftest.py avec import du module, (2) créer test_*.py avec 1 test trivial (assert True), (3) vérifier 'pytest --collect-only' retourne 1 item, (4) ajouter les assertions métier.",
+    "Une structure de test 'bien pensée' mais non-exécutable = 0 points. L'exécutabilité est le critère #1 avant la couverture ou la sophistication."
   ],
   "promote_to_claude_md": [
-    "ModuleNotFoundError lors de pytest indique un problème de PYTHONPATH ou de structure du projet. Diagnostic: (1) vérifier sys.path, (2) confirmer structure (tools/ au même niveau que tests/), (3) exécuter 'python -m pytest --collect-only' avant l'exécution.",
-    "Validation post-génération obligatoire pour tout fichier test: (1) py_compile pour syntaxe, (2) pytest --collect-only pour vérifier N > 0 tests collectés, (3) pytest -v avec timeout. Arrêter si collecte échoue."
-  ]
+    "Ordre d'exécution strict pour 'créer tests qui passent' : (1) conftest.py avec import du module, (2) test_*.py avec 1 test trivial (assert True), (3) 'pytest --collect-only' doit retourner N items, (4) 'pytest' doit passer, (5) ajouter assertions métier. Valider l'exécutabilité à chaque étape avant d'ajouter de la complexité.",
+    "L'exécutabilité est le critère #1 avant la couverture, la sophistication ou la qualité du code. Ne jamais sacrifier 'ça marche' pour 'c'est beau'."
+  ],
+  "skills_to_save": [
+    {
+      "name": "conftest_import_validator",
+      "code": "# conftest.py\nimport sys\nfrom pathlib import Path\n\n# Add src to path if needed\nsrc_path = Path(__file__).parent.parent / 'src'\nif src_path.exists():\n    sys.path.insert(0, str(src_path))\n\n# Validate import at collection time\ntry:\n    import summarize\nexcept ModuleNotFoundError as e:\n    raise RuntimeError(f'Infrastructure error: {e}. Check module location and sys.path.')",
+      "category": "pattern",
+      "description": "Valide l'infrastructure d'import au moment de la collection pytest, avant l'exécution des tests. Échoue explicitement si le module n'est pas trouvé."
+    },
+    {
+      "name": "pytest_collect_check",
+      "code": "# Shell command to validate test collection\n# Run BEFORE writing assertions\npytest --collect-only tests/ -q\n# Expected output: N items collected\n# If 0 items: infrastructure problem, not test logic problem",
+      "category": "utility",
+      "description": "Commande de diagnostic pour vérifier que pytest collecte les tests. À exécuter avant d'ajouter des assertions métier."
+    },
+    {
+      "name": "minimal_test_bootstrap",
+      "code": "# tests/test_summarize.py\nimport pytest\nfrom summarize import summarize\n\ndef test_import_works():\n    \"\"\"Validate that the module imports and is callable.\"\"\"\n    assert callable(summarize)\n\ndef test_simple_case():\n    \"\"\"Test with minimal input.\"\"\"\n    result = summarize('hello world')\n    assert isinstance(result, str)\n    assert len(result) > 0",
+      "category": "test",
+      "description": "Structure minimale pour bootstrapper les tests : 1 test trivial (import), 1 test métier simple. Valide l'exécutabilité avant d'ajouter de la complexité."
+    }
+  ],
+  "meta_reasoning": "J'aurais pu résoudre cette tâche en 50% moins d'étapes en suivant cet ordre : (1) créer conftest.py avec import du module et validation explicite, (2) créer test_summarize.py avec 1 seul test trivial (assert True), (3) exécuter 'pytest --collect-only' pour valider la collection, (4) exécuter 'pytest' pour valider l'exécution, (5) SEULEMENT ALORS ajouter les 3 cas d'entrée/sortie. Au lieu de cela, j'ai écrit directement 3 tests sophistiqués sans valider l'infrastructure, ce qui a masqué le problème d'import. La leçon : toujours valider l'exécutabilité avant la sophistication."
 }

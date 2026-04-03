@@ -1,0 +1,11 @@
+{
+  "name": "conftest_import_validator",
+  "category": "pattern",
+  "description": "Valide l'infrastructure d'import au moment de la collection pytest, avant l'exécution des tests. Échoue explicitement si le module n'est pas trouvé.",
+  "code": "# conftest.py\nimport sys\nfrom pathlib import Path\n\n# Add src to path if needed\nsrc_path = Path(__file__).parent.parent / 'src'\nif src_path.exists():\n    sys.path.insert(0, str(src_path))\n\n# Validate import at collection time\ntry:\n    import summarize\nexcept ModuleNotFoundError as e:\n    raise RuntimeError(f'Infrastructure error: {e}. Check module location and sys.path.')",
+  "score": 22,
+  "source_iteration": 6,
+  "created": "2026-04-03T23:09:02.370017",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

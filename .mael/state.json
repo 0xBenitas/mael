@@ -1,36 +1,117 @@
 {
-  "version": "0.3.0",
+  "version": "0.6.0",
   "status": "running",
   "current_iteration": 0,
   "tasks": [
     {
       "id": 1,
-      "title": "Créer un utilitaire de résumé de texte",
-      "description": "Créer un fichier tools/summarize.py contenant une fonction summarize(text, max_sentences=3) qui extrait les N phrases les plus importantes d'un texte en utilisant une heuristique simple (longueur de phrase + mots-clés). Inclure un if __name__ == '__main__' pour tester.",
-      "status": "completed",
-      "priority": "high",
-      "acceptance": "Le fichier existe, la fonction est importable, et elle retourne un résumé plus court que l'original."
+      "title": "Améliorer la validation du summarizer avec tests unitaires robustes",
+      "description": "Remplacer les tests manuels dans tools/summarize.py par des tests unitaires complets dans tests/test_summarize.py. Ajouter des cas d'entrée/sortie connus avec assertions sur la longueur, la pertinence et la structure des résumés générés.",
+      "acceptance": "tests/test_summarize.py contient au moins 5 tests avec assertions vérifiables, coverage >80% sur tools/summarize.py, tous les tests passent",
+      "status": "decomposed",
+      "priority": "high"
     },
     {
       "id": 2,
-      "title": "Écrire les tests pour l'utilitaire de résumé",
-      "description": "Créer tests/test_summarize.py avec au moins 4 tests pour tools/summarize.py : texte vide, texte court (< max_sentences), texte long, et texte avec max_sentences=1. IMPORT: from tools.summarize import summarize, split_sentences, score_sentence. Utiliser pytest.",
-      "status": "completed",
-      "priority": "high",
-      "acceptance": "Tous les tests passent avec pytest. Couverture des cas limites."
+      "title": "Créer un outil de validation de code Python",
+      "description": "Développer tools/validator.py qui analyse la syntaxe, les imports, et la structure d'un fichier Python. Inclure des métriques comme complexité cyclomatique et couverture potentielle. Ajouter tests correspondants dans tests/test_validator.py.",
+      "acceptance": "tools/validator.py fonctionnel avec au moins 3 types de validation, tests unitaires avec 100% de couverture, intégration dans le système MAEL",
+      "status": "decomposed",
+      "priority": "medium"
     },
     {
       "id": 3,
-      "title": "Améliorer le résumé avec un scoring TF-IDF simplifié",
-      "description": "Modifier tools/summarize.py pour améliorer le scoring des phrases. Utiliser la fréquence de mots (TF simple) : les phrases contenant les mots les plus fréquents du texte sont priorisées. Pas de dépendances externes. IMPORT existant: from tools.summarize import summarize.",
+      "title": "Implémenter un système de scoring pour les mutations",
+      "description": "Étendre mael/mutator.py pour inclure un scoring automatique des mutations basé sur des métriques objectives (tests passés, performance, lisibilité). Utiliser ce scoring pour prioriser les mutations futures.",
+      "acceptance": "mael/mutator.py contient une fonction score_mutation() avec au moins 3 critères, tests unitaires validant le scoring, intégration dans le cycle d'amélioration",
+      "status": "decomposed",
+      "priority": "critical"
+    },
+    {
+      "id": 4,
+      "title": "Créer la structure de test avec cas d'entrée/sortie simples",
+      "description": "Créer tests/test_summarize.py avec 3 tests unitaires basiques : test_empty_input, test_short_input, test_normal_input. Chaque test appelle summarize() avec une chaîne connue et vérifie que le résultat est une chaîne non-vide. Max 50 lignes.",
+      "acceptance": "pytest tests/test_summarize.py passe avec 3 tests verts, aucune assertion sur pertinence",
       "status": "in_progress",
+      "priority": "high",
+      "parent_id": 1
+    },
+    {
+      "id": 5,
+      "title": "Ajouter assertions sur la longueur du résumé",
+      "description": "Enrichir tests/test_summarize.py : ajouter 2 tests vérifiant que len(summary) < len(input) et que len(summary) > 0. Tester avec des inputs de 100 et 500 caractères. Max 30 lignes ajoutées.",
+      "acceptance": "5 tests passent, assertions sur len() uniquement, pas de vérification de pertinence",
+      "status": "pending",
+      "priority": "high",
+      "parent_id": 1
+    },
+    {
+      "id": 6,
+      "title": "Ajouter assertions sur la structure du résumé",
+      "description": "Enrichir tests/test_summarize.py : ajouter 2 tests vérifiant que le résumé contient au moins une phrase (point final) et pas de caractères de contrôle. Max 25 lignes ajoutées.",
+      "acceptance": "7 tests passent, assertions sur structure (ponctuation, pas de caractères invalides)",
+      "status": "pending",
+      "priority": "high",
+      "parent_id": 1
+    },
+    {
+      "id": 7,
+      "title": "Créer le validateur de syntaxe de base",
+      "description": "Développer tools/validator.py avec une classe SyntaxValidator qui vérifie la syntaxe Python et liste les imports. Max 80 lignes. Inclure: ast.parse(), extraction des imports via ast.walk(), gestion des erreurs SyntaxError.",
+      "acceptance": "Le fichier tools/validator.py existe, contient une classe SyntaxValidator avec méthodes validate_syntax() et get_imports(), exécutable sans erreur.",
+      "status": "pending",
       "priority": "medium",
-      "acceptance": "La fonction produit de meilleurs résumés. Les tests existants passent toujours."
+      "parent_id": 2
+    },
+    {
+      "id": 8,
+      "title": "Ajouter les métriques de complexité",
+      "description": "Étendre tools/validator.py (ou créer tools/metrics.py) avec calcul de complexité cyclomatique basique. Max 80 lignes. Compter les branches (if, for, while, except) par fonction.",
+      "acceptance": "Une fonction calculate_cyclomatic_complexity(ast_node) retourne un dict {function_name: complexity_score}. Testé sur 2-3 fonctions simples.",
+      "status": "pending",
+      "priority": "medium",
+      "parent_id": 2
+    },
+    {
+      "id": 9,
+      "title": "Écrire les tests unitaires",
+      "description": "Créer tests/test_validator.py avec 5-6 tests couvrant: syntaxe valide, syntaxe invalide, extraction d'imports, complexité cyclomatique. Max 100 lignes.",
+      "acceptance": "tests/test_validator.py existe, tous les tests passent avec pytest, couverture ≥80% du validateur.",
+      "status": "pending",
+      "priority": "medium",
+      "parent_id": 2
+    },
+    {
+      "id": 10,
+      "title": "Définir et implémenter les métriques de base",
+      "description": "Créer mael/metrics.py avec 3 fonctions simples : count_passed_tests(mutation), measure_execution_time(mutation), calculate_code_complexity(mutation). Chaque fonction retourne un float entre 0 et 1.",
+      "acceptance": "metrics.py existe, 3 fonctions testées avec des cas simples (mutation fictive), chaque fonction retourne un score normalisé",
+      "status": "pending",
+      "priority": "critical",
+      "parent_id": 3
+    },
+    {
+      "id": 11,
+      "title": "Implémenter le moteur de scoring",
+      "description": "Créer mael/scorer.py avec une classe MutationScorer qui combine les 3 métriques via une formule pondérée : score = 0.5*tests + 0.3*perf + 0.2*complexity. Méthode score(mutation) -> float.",
+      "acceptance": "scorer.py existe, MutationScorer.score() retourne un float entre 0 et 1, test unitaire valide la pondération",
+      "status": "pending",
+      "priority": "critical",
+      "parent_id": 3
+    },
+    {
+      "id": 12,
+      "title": "Intégrer le scoring dans mutator.py",
+      "description": "Ajouter à mael/mutator.py une méthode rank_mutations(mutations_list) qui utilise MutationScorer pour trier les mutations par score décroissant. Retourner une liste ordonnée.",
+      "acceptance": "mutator.py intègre le scorer, rank_mutations() retourne les mutations triées, test valide l'ordre",
+      "status": "pending",
+      "priority": "critical",
+      "parent_id": 3
     }
   ],
   "meta": {
     "created": "2026-04-03",
     "description": "MAEL — Méta-Amélioration Évolutive en Ligne",
-    "goal": "Première vraie boucle : créer, tester, et améliorer un outil — piloté par le LLM."
+    "goal": "Construire un système auto-améliorant complet : le serpent doit créer des outils, les tester, les améliorer, et accumuler des skills réutilisables. Priorité : outils Python utiles + tests + documentation."
   }
 }

@@ -128,14 +128,19 @@ def phase_act(state: dict, task: dict, iteration: int,
     claude_md = _read_claude_md()
     learnings = get_learnings()
 
+    # Inject available skills
+    from .skills import skills_summary
+    skills_ctx = skills_summary()
+
     prompt = PHASE_ACT.format(
         iteration=iteration,
         task_id=task["id"],
         task_title=task["title"],
         task_description=task["description"],
         task_acceptance=task.get("acceptance", "N/A"),
+        skills=skills_ctx,
         claude_md=claude_md[:2000],  # Limit context size
-        learnings=learnings[-2000:] if learnings else "(none)",
+        learnings=learnings[-1500:] if learnings else "(none)",
     )
 
     if dry_run:
@@ -283,8 +288,28 @@ def phase_learn(state: dict, task: dict, eval_result: dict,
     for promo in learn_data.get("promote_to_claude_md", []):
         promote_to_claude_md(promo)
 
+    # Save skills to library (atomic skill acquisition)
+    from .skills import save_skill
+    for sk in learn_data.get("skills_to_save", []):
+        if sk.get("name") and sk.get("code"):
+            save_skill(
+                name=sk["name"],
+                code=sk["code"],
+                category=sk.get("category", "utility"),
+                description=sk.get("description", ""),
+                score=eval_result.get("score", 0),
+                source_iteration=iteration,
+            )
+            _log(f"[APPRENDRE] Skill saved: {sk['name']}")
+
+    # Log meta-reasoning if present
+    meta = learn_data.get("meta_reasoning", "")
+    if meta:
+        _log(f"[META] {meta[:200]}")
+
     n = len(learn_data.get("learnings", []))
-    _log(f"[APPRENDRE] Added {n} learning(s)")
+    n_skills = len(learn_data.get("skills_to_save", []))
+    _log(f"[APPRENDRE] Added {n} learning(s), {n_skills} skill(s)")
 
     _log_to_file(f"iter_{iteration}_3_learn.log", learn_data)
 

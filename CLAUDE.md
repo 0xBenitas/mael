@@ -24,6 +24,12 @@ Objectif : Créer une boucle auto-améliorante où Claude Code :
 - Règles promues dans `.mael/rules/`
 
 ## Patterns Confirmés
+- **[2026-04-03]** Exécutabilité > Couverture > Sophistication. Un test non-exécutable = 0 points, peu importe la qualité du code.
+- **[2026-04-03]** Ordre d'exécution critique pour créer une structure test exécutable : (1) créer src/summarizer.py avec fonction stub, (2) conftest.py avec import explicite, (3) test_*.py avec assert True, (4) pytest --collect-only, (5) pytest, (6) assertions métier. Ne jamais sauter l'étape 1.
+- **[2026-04-03]** L'exécutabilité est le critère #1 avant la couverture, la sophistication ou la qualité du code. Ne jamais sacrifier 'ça marche' pour 'c'est beau'.
+- **[2026-04-03]** Ordre d'exécution strict pour 'créer tests qui passent' : (1) conftest.py avec import du module, (2) test_*.py avec 1 test trivial (assert True), (3) 'pytest --collect-only' doit retourner N items, (4) 'pytest' doit passer, (5) ajouter assertions métier. Valider l'exécutabilité à chaque étape avant d'ajouter de la complexité.
+- **[2026-04-03]** Ordre d'exécution pour tests: (1) conftest.py + import trivial, (2) test_*.py avec assert True, (3) vérifier collection, (4) assertions métier. Cela prévient 90% des ModuleNotFoundError.
+- **[2026-04-03]** pytest infrastructure: utiliser conftest.py avec pytest_configure ou setup.py/pyproject.toml au lieu de sys.path.insert(). Valider avec 'pytest --collect-only' avant d'écrire les assertions.
 - **[2026-04-03]** Avant d'implémenter un algorithme, spécifier par écrit : langue, ressources, cas limites, test de régression. Valider avec test unitaire avant logique métier.
 - **[2026-04-03]** Prioriser complétude et exécutabilité avant sophistication. Un code simple qui marche > code conceptuellement bon mais incomplet. Découper en étapes : (1) interface, (2) cas trivial, (3) cas complexe.
 - **[2026-04-03]** Extraire l'interface attendue d'un module AVANT modification : lister imports, signatures, retours via grep/ast.parse(). Générer en respectant strictement cette interface pour prévenir ImportError et ruptures de contrats.

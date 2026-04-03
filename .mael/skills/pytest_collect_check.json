@@ -1,0 +1,11 @@
+{
+  "name": "pytest_collect_check",
+  "category": "utility",
+  "description": "Validation d'infrastructure de test avant exécution. Détecte les problèmes d'import, nommage ou structure.",
+  "code": "# Shell command\npytest --collect-only tests/ -q\n# Expected output: N items collected\n# If 0 items: infrastructure problem (import, naming, structure)",
+  "score": 22,
+  "source_iteration": 7,
+  "created": "2026-04-03T23:09:26.981816",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

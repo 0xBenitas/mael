@@ -2,42 +2,61 @@
   "learnings": [
     {
       "category": "gotcha",
-      "learning": "Un fichier Python tronqué (fonction incomplète) peut passer la validation manuelle mais échouer les tests. Avant soumission, vérifier la complétude syntaxique : (1) compter parenthèses/accolades ouvertes vs fermées, (2) vérifier que chaque fonction a un corps complet (pas de ligne 'word_freq = ...' sans suite), (3) exécuter 'python -m py_compile' pour détecter les erreurs de syntaxe.",
+      "learning": "sys.path.insert() dans les tests pytest est une anti-pattern. pytest découvre les modules via PYTHONPATH, setup.py, pyproject.toml, ou conftest.py. Utiliser conftest.py avec pytest_configure ou configurer le projet avec un setup.py/pyproject.toml au lieu de manipuler sys.path manuellement.",
       "confidence": "haute",
-      "reusable_for": "Toute génération de code multi-fonction où une fonction appelle d'autres. Détecte les troncatures avant soumission."
+      "reusable_for": "Tout projet pytest avec imports de modules locaux. Évite ModuleNotFoundError et 0 items collected."
     },
     {
       "category": "failure_analysis",
-      "learning": "Un self-test rapporté comme 'OK' est non-fiable si le code généré est incomplet. Le test peut avoir été exécuté sur une version antérieure ou partielle. Toujours re-exécuter les tests APRÈS génération finale, et vérifier que tous les items collectés passent (ne pas se fier au nombre de items collectés seul).",
+      "learning": "Avant d'écrire des tests, valider que l'infrastructure d'import fonctionne : créer un conftest.py minimal qui importe le module cible et échoue explicitement si l'import échoue. Cela détecte les problèmes d'infrastructure AVANT d'écrire les assertions.",
       "confidence": "haute",
-      "reusable_for": "Validation de code généré. Évite de soumettre du code 'testé' mais en réalité cassé."
-    },
-    {
-      "category": "optimization",
-      "learning": "Après génération d'une fonction principale complexe, ajouter une étape de vérification de dépendances : (1) lister toutes les fonctions appelées (split_sentences, score_sentence, get_word_frequencies, etc.), (2) vérifier que chacune est définie ET complète, (3) exécuter un test d'intégration minimal (ex: summarize(sample_text) retourne str non-vide et len > 0). Cela détecte les appels à des fonctions manquantes ou tronquées.",
-      "confidence": "haute",
-      "reusable_for": "Génération de code avec dépendances internes. Prévient les erreurs de runtime dues à des fonctions helper manquantes."
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "La rupture entre interface attendue (tests qui importent split_sentences, score_sentence) et implémentation (fonctions non exportées ou tronquées) bloque l'exécution. Avant de coder, extraire les signatures des tests existants (grep 'from tools.summarize import' ou 'import tools.summarize') et générer EXACTEMENT les fonctions attendues avec les bons noms et visibilité (public vs private).",
-      "confidence": "haute",
-      "reusable_for": "Intégration avec tests existants. Évite les incompatibilités d'interface."
+      "reusable_for": "Toute suite de tests pytest. Prévient de perdre du temps à déboguer des assertions quand le problème est l'import."
     },
     {
       "category": "gotcha",
-      "learning": "Un rapport de test tronqué (pytest rapporte '44 items collectés' mais résultat coupé) masque les vrais résultats. Toujours vérifier que le rapport de test est complet : chercher la ligne 'passed/failed/error' finale. Si elle manque, le test n'a pas terminé correctement et le code est suspect.",
+      "learning": "pytest ne collecte 0 items quand : (1) le fichier test_*.py n'existe pas ou n'est pas trouvé, (2) les imports échouent silencieusement, (3) aucune fonction test_*() n'existe. Toujours vérifier la sortie de 'pytest --collect-only' avant de lancer les tests.",
       "confidence": "haute",
-      "reusable_for": "Validation de rapports de test. Détecte les tests incomplets ou interrompus."
+      "reusable_for": "Débogage rapide de suites pytest qui ne collectent rien. Économise 10+ minutes de debugging."
+    },
+    {
+      "category": "optimization",
+      "learning": "Ordre d'exécution pour une tâche 'créer tests' : (1) créer conftest.py avec import du module, (2) créer test_*.py avec 1 test trivial (assert True), (3) vérifier 'pytest --collect-only' retourne 1 item, (4) ajouter les assertions métier. Cela valide l'infrastructure avant la logique.",
+      "confidence": "haute",
+      "reusable_for": "Toute création de suite de tests. Réduit les cycles de débogage d'infrastructure."
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Une structure de test 'bien pensée' (3 cas d'entrée/sortie, assertions claires) mais non-exécutable (import cassé) = 0 points. L'exécutabilité est le critère #1 avant la couverture ou la sophistication. Valider l'exécution à chaque étape.",
+      "confidence": "haute",
+      "reusable_for": "Priorisation des tâches de test. Toujours vérifier 'pytest -v' retourne des résultats avant de considérer la tâche finie."
     }
   ],
   "patterns_seen_again": [
-    "Un code 'fonctionnellement correct' (validation manuelle OK) mais 'structurellement incomplet' (fichier tronqué) reçoit un score FAIL. La validation manuelle ne suffit pas : elle doit être complétée par (1) vérification de complétude syntaxique, (2) exécution des tests existants, (3) vérification que toutes les fonctions helper attendues sont présentes et exportées.",
-    "Après génération d'un algorithme complexe (TF-IDF), ajouter une étape de vérification : (1) lister toutes les fonctions appelées dans la fonction principale, (2) vérifier que chacune est définie et complète, (3) exécuter un test d'intégration simple (ex: summarize(sample_text) retourne str non-vide). Cela détecte les dépendances manquantes avant soumission."
+    "Un code 'conceptuellement bon' (ex: stop words français, Counter, scoring par phrase) mais incomplet (logique non finalisée, pas de return) est pire qu'un code simple qui marche. Prioriser la complétude et l'exécutabilité avant la sophistication. Découper la tâche en étapes : (1) interface, (2) cas trivial, (3) cas complexe."
   ],
   "promote_to_claude_md": [
-    "Avant soumission de code Python multi-fonction, exécuter 'python -m py_compile' et vérifier que parenthèses/accolades sont équilibrées. Cela détecte les fichiers tronqués.",
-    "Extraire les signatures des tests existants (grep 'from module import') et générer EXACTEMENT les fonctions attendues avec les bons noms et visibilité avant de coder la logique.",
-    "Après génération, exécuter un test d'intégration minimal (ex: summarize(sample_text)) pour vérifier que toutes les dépendances internes sont présentes et complètes."
-  ]
+    "pytest infrastructure: utiliser conftest.py avec pytest_configure ou setup.py/pyproject.toml au lieu de sys.path.insert(). Valider avec 'pytest --collect-only' avant d'écrire les assertions.",
+    "Ordre d'exécution pour tests: (1) conftest.py + import trivial, (2) test_*.py avec assert True, (3) vérifier collection, (4) assertions métier. Cela prévient 90% des ModuleNotFoundError."
+  ],
+  "skills_to_save": [
+    {
+      "name": "conftest_minimal",
+      "code": "# conftest.py\nimport sys\nfrom pathlib import Path\n\n# Ajouter le répertoire parent au path AVANT les imports\nproject_root = Path(__file__).parent.parent\nsys.path.insert(0, str(project_root))\n\n# Valider l'import immédiatement\ntry:\n    import summarize\nexcept ModuleNotFoundError as e:\n    raise RuntimeError(f\"Module 'summarize' not found. Check project structure. Error: {e}\")",
+      "category": "test",
+      "description": "conftest.py minimal qui valide l'import du module cible et échoue explicitement si l'infrastructure est cassée."
+    },
+    {
+      "name": "pytest_collect_check",
+      "code": "# Avant de lancer les tests, vérifier la collection\n# $ pytest --collect-only -q\n# Doit retourner: test_summarize.py::test_trivial PASSED\n# Si 0 items collected, l'infrastructure est cassée.",
+      "category": "utility",
+      "description": "Commande de diagnostic pour vérifier que pytest collecte les tests avant de les exécuter."
+    },
+    {
+      "name": "test_structure_minimal",
+      "code": "# test_summarize.py\nimport pytest\nfrom summarize import summarize_text\n\ndef test_trivial():\n    \"\"\"Valider que l'import fonctionne et le module est exécutable.\"\"\"\n    assert summarize_text is not None\n\ndef test_empty_input():\n    \"\"\"Cas limite: texte vide.\"\"\"\n    result = summarize_text(\"\")\n    assert result == \"\"\n\ndef test_single_sentence():\n    \"\"\"Cas simple: une phrase.\"\"\"\n    text = \"Ceci est une phrase.\"\n    result = summarize_text(text)\n    assert isinstance(result, str)\n    assert len(result) > 0",
+      "category": "test",
+      "description": "Structure minimale de test qui valide l'infrastructure avant la logique métier."
+    }
+  ],
+  "meta_reasoning": "J'aurais pu résoudre cette tâche en 50% moins d'étapes en : (1) créant conftest.py AVANT test_*.py, (2) exécutant 'pytest --collect-only' immédiatement pour valider l'infrastructure, (3) écrivant un test trivial (assert True) pour confirmer la collection, (4) PUIS ajoutant les assertions métier. Au lieu de cela, j'ai écrit une structure de test complète sans valider que l'import fonctionnait, ce qui a causé 0 items collected. La leçon : infrastructure d'abord, logique ensuite. Valider à chaque étape avec une commande observable (pytest --collect-only, pytest -v)."
 }

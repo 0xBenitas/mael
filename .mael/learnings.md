@@ -893,7 +893,7 @@
 **Contexte** : Task: Améliorer le résumé avec un scoring TF-IDF simplifié
 **Learning** : Un code 'conceptuellement bon' (ex: stop words français, Counter, scoring par phrase) mais incomplet (logique non finalisée, pas de return) est pire qu'un code simple qui marche. Prioriser la complétude et l'exécutabilité avant la sophistication. Découper la tâche en étapes : (1) interface, (2) cas trivial, (3) cas complexe.
 **Confiance** : haute
-**Utilisations** : 0
+**Utilisations** : 1
 
 ### [2026-04-03] Iteration 3 — optimization
 **Contexte** : Task: Améliorer le résumé avec un scoring TF-IDF simplifié
@@ -904,5 +904,95 @@
 ### [2026-04-03] Iteration 3 — failure_analysis
 **Contexte** : Task: Améliorer le résumé avec un scoring TF-IDF simplifié
 **Learning** : Les tests manuels (print statements) ne valident rien. Remplacer par des assertions ou des tests unitaires avec des cas d'entrée/sortie connus et vérifiables. Un test manuel qui passe ne prouve pas que l'algorithme fonctionne; il prouve juste que le code s'exécute sans erreur.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 5 — gotcha
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : sys.path.insert() dans les tests pytest est une anti-pattern. pytest découvre les modules via PYTHONPATH, setup.py, pyproject.toml, ou conftest.py. Utiliser conftest.py avec pytest_configure ou configurer le projet avec un setup.py/pyproject.toml au lieu de manipuler sys.path manuellement.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 5 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Avant d'écrire des tests, valider que l'infrastructure d'import fonctionne : créer un conftest.py minimal qui importe le module cible et échoue explicitement si l'import échoue. Cela détecte les problèmes d'infrastructure AVANT d'écrire les assertions.
+**Confiance** : haute
+**Utilisations** : 1
+
+### [2026-04-03] Iteration 5 — gotcha
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : pytest ne collecte 0 items quand : (1) le fichier test_*.py n'existe pas ou n'est pas trouvé, (2) les imports échouent silencieusement, (3) aucune fonction test_*() n'existe. Toujours vérifier la sortie de 'pytest --collect-only' avant de lancer les tests.
+**Confiance** : haute
+**Utilisations** : 1
+
+### [2026-04-03] Iteration 5 — optimization
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Ordre d'exécution pour une tâche 'créer tests' : (1) créer conftest.py avec import du module, (2) créer test_*.py avec 1 test trivial (assert True), (3) vérifier 'pytest --collect-only' retourne 1 item, (4) ajouter les assertions métier. Cela valide l'infrastructure avant la logique.
+**Confiance** : haute
+**Utilisations** : 1
+
+### [2026-04-03] Iteration 5 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Une structure de test 'bien pensée' (3 cas d'entrée/sortie, assertions claires) mais non-exécutable (import cassé) = 0 points. L'exécutabilité est le critère #1 avant la couverture ou la sophistication. Valider l'exécution à chaque étape.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 6 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : ModuleNotFoundError lors de l'import dans les tests = problème d'infrastructure, pas de logique. Avant d'écrire une seule assertion, créer un conftest.py qui importe le module cible et échoue explicitement si l'import échoue. Cela détecte les dépendances manquantes AVANT la rédaction des tests.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 6 — optimization
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Ordre d'exécution strict pour 'créer tests qui passent' : (1) conftest.py avec import du module, (2) test_*.py avec 1 test trivial (assert True), (3) 'pytest --collect-only' doit retourner N items, (4) 'pytest' doit passer, (5) ajouter assertions métier. Valider l'exécutabilité à chaque étape avant d'ajouter de la complexité.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 6 — gotcha
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Un test bien structuré (3 cas d'entrée/sortie, assertions claires, idiomatique) mais non-exécutable (import cassé) = 0 points. L'exécutabilité est le critère #1 avant la couverture, la sophistication ou la qualité du code. Ne jamais sacrifier 'ça marche' pour 'c'est beau'.
+**Confiance** : haute
+**Utilisations** : 1
+
+### [2026-04-03] Iteration 6 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : pytest.fail() dans un test masque le vrai problème (import cassé) derrière une assertion explicite. Préférer laisser l'exception d'import remonter naturellement ou la capturer dans conftest.py avec un message clair. Cela rend le diagnostic plus rapide.
+**Confiance** : moyenne
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 6 — optimization
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Avant de créer test_*.py, toujours exécuter 'pytest --collect-only' sur le répertoire tests/. Si 0 items collectés, c'est un problème d'infrastructure (import, nommage, structure). Cela économise 2-3 itérations de debugging.
+**Confiance** : haute
+**Utilisations** : 1
+
+### [2026-04-03] Iteration 7 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : ModuleNotFoundError lors de l'import dans conftest.py = arrêt immédiat avant toute exécution de test. Cela signifie que src/summarizer.py n'existe pas ou n'est pas dans PYTHONPATH. Vérifier l'existence du fichier source AVANT de rédiger les tests.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 7 — optimization
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Ordre d'exécution critique : (1) créer src/summarizer.py avec fonction stub (def summarize(text): return text), (2) créer conftest.py avec import, (3) créer test_*.py avec assert True, (4) pytest --collect-only, (5) pytest, (6) ajouter assertions métier. Ne jamais sauter l'étape 1.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 7 — gotcha
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Un conftest.py qui importe le module et échoue silencieusement (ou avec try/except trop permissif) masque le problème. Laisser l'exception remonter ou la capturer avec sys.exit(1) et message explicite force la détection immédiate.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 7 — optimization
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : Exécuter 'pytest --collect-only tests/' AVANT 'pytest tests/' pour valider que pytest trouve les tests. Si 0 items, c'est un problème d'infrastructure (import, nommage, structure), pas de logique métier.
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 7 — failure_analysis
+**Contexte** : Task: Créer la structure de test avec cas d'entrée/sortie simples
+**Learning** : La qualité du code de test (assertions claires, 3 cas d'entrée/sortie, idiomatique) ne compense JAMAIS l'absence d'exécutabilité. 0 tests verts = 0 points, peu importe la beauté du code. Exécutabilité > Couverture > Sophistication.
 **Confiance** : haute
 **Utilisations** : 0

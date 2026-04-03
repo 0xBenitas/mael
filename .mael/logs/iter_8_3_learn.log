@@ -1,44 +1,5 @@
 {
-  "learnings": [
-    {
-      "category": "failure_analysis",
-      "learning": "Les erreurs d'import (ImportError, INTERNALERROR) indiquent une désynchronisation entre la structure du projet et les chemins d'import dans les tests. Avant de générer des tests, valider la structure réelle du projet avec 'find . -name \"*.py\" -type f' et 'python -c \"import sys; print(sys.path)\"' pour garantir que les imports correspondent à la réalité.",
-      "confidence": "haute",
-      "reusable_for": "Génération de tests pour tout module Python; validation d'intégration avant exécution"
-    },
-    {
-      "category": "gotcha",
-      "learning": "Les fichiers test tronqués (assertion coupée à 'assert len') peuvent résulter d'une interruption lors de l'écriture ou d'une limite de buffer. Toujours vérifier la complétude du fichier généré avec 'tail -5 <file>' et 'wc -l <file>' immédiatement après génération, avant validation.",
-      "confidence": "haute",
-      "reusable_for": "Génération de fichiers volumineux; détection de corruptions silencieuses"
-    },
-    {
-      "category": "optimization",
-      "learning": "La validation post-génération en trois étapes (syntaxe → collection → exécution) doit être obligatoire et atomique. Si une étape échoue, générer un rapport diagnostic détaillé (erreur exacte, ligne, contexte) AVANT de relancer la génération. Cela réduit les cycles d'itération.",
-      "confidence": "haute",
-      "reusable_for": "Pipeline de génération de code; assurance qualité avant commit"
-    },
-    {
-      "category": "success_pattern",
-      "learning": "La structure logique des tests (classes par fonctionnalité, docstrings, assertions organisées) était correcte. Les problèmes étaient environnementaux (import + fichier tronqué). Séparer la validation de la logique : réutiliser la même structure de génération mais ajouter une étape de diagnostic d'environnement préalable.",
-      "confidence": "haute",
-      "reusable_for": "Itérations futures sur les tests; refactoring sans changement logique"
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Un score partiel (45/100) avec tests collectés mais non exécutables indique que la génération a réussi mais l'intégration a échoué. Distinguer clairement : (1) génération correcte, (2) intégration cassée. Cela permet de cibler le diagnostic (code vs environnement).",
-      "confidence": "haute",
-      "reusable_for": "Évaluation de la qualité; diagnostic rapide des causes racines"
-    }
-  ],
-  "patterns_seen_again": [
-    "Une race condition peut survenir si un fichier test est supprimé (rm) juste avant la compilation/validation. Le fichier peut être en cours d'écriture ou partiellement supprimé. Solution: utiliser 'git clean -fd tests/' ou 'git checkout tests/' pour nettoyer de manière atomique, plutôt que 'rm -f' suivi d'une génération.",
-    "Les assertions faibles ('assert len(result) >= 1') masquent les bugs. Remplacer par des assertions spécifiques: vérifier le contenu exact, la structure, les cas limites (texte très long, max_sentences=1, caractères spéciaux). Générer des tests avec assertions fortes dès le départ plutôt que de les renforcer après.",
-    "Après génération d'un fichier test, exécuter une validation en trois étapes: (1) 'python -m py_compile' pour syntaxe, (2) 'pytest --collect-only -q' pour vérifier N > 0 tests collectés, (3) 'pytest -v --tb=line' avec timeout. Si l'une échoue, arrêter et diagnostiquer AVANT de continuer. Cela détecte les imports cassés et les fichiers tronqués immédiatement."
-  ],
-  "promote_to_claude_md": [
-    "Valider la structure du projet et les chemins d'import avant de générer des tests : utiliser 'find' et 'python -c import' pour garantir la cohérence",
-    "Vérifier la complétude des fichiers générés immédiatement après écriture avec 'tail' et 'wc -l' pour détecter les troncatures",
-    "Implémenter une validation post-génération obligatoire en trois étapes (syntaxe → collection → exécution) avec diagnostic détaillé en cas d'échec"
-  ]
+  "learnings": [],
+  "patterns_seen_again": [],
+  "promote_to_claude_md": []
 }

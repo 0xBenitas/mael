@@ -1,0 +1,11 @@
+{
+  "name": "test_structure_minimal",
+  "category": "test",
+  "description": "Structure minimale de test : 1 test trivial pour valider l'infrastructure, puis 2-3 tests métier simples.",
+  "code": "# tests/test_summarizer.py\nimport pytest\nfrom src.summarizer import summarize\n\ndef test_trivial():\n    \"\"\"Minimal test to validate infrastructure.\"\"\"\n    assert True\n\ndef test_summarize_empty():\n    result = summarize('')\n    assert result == ''\n\ndef test_summarize_passthrough():\n    result = summarize('hello')\n    assert result == 'hello'",
+  "score": 22,
+  "source_iteration": 7,
+  "created": "2026-04-03T23:09:26.981948",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

@@ -1,50 +1,5 @@
 {
-  "learnings": [
-    {
-      "category": "failure_analysis",
-      "learning": "Une fonction principale incomplète (qui s'arrête sans retourner) passe les tests existants si ceux-ci ne vérifient que les fonctions auxiliaires. Toujours ajouter un test d'intégration end-to-end qui appelle la fonction principale et valide sa sortie complète (type, longueur, contenu non-vide).",
-      "confidence": "haute",
-      "reusable_for": "Validation de code généré avec dépendances multiples; détection de fonctions tronquées"
-    },
-    {
-      "category": "gotcha",
-      "learning": "Un scoring TF-IDF sans pondération positionnelle (début/fin du texte) produit des résumés sous-optimaux. Les phrases d'introduction et de conclusion ont une valeur informationnelle intrinsèque indépendante de la fréquence des mots. Intégrer un facteur de position (ex: +20% pour phrases 0-2 et dernière phrase) dans le scoring.",
-      "confidence": "haute",
-      "reusable_for": "Amélioration de résumés automatiques; scoring de pertinence de phrases"
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Une liste de stop words en anglais dans un projet français réduit la qualité du scoring TF-IDF (mots français courants non filtrés). Avant d'implémenter un scoring, vérifier la langue du corpus et utiliser des ressources linguistiques appropriées (NLTK French stopwords, ou liste custom).",
-      "confidence": "haute",
-      "reusable_for": "Traitement de texte multilingue; configuration de pipelines NLP"
-    },
-    {
-      "category": "optimization",
-      "learning": "Ajouter des tests spécifiques pour chaque amélioration algorithmique (ex: test_tfidf_scoring_vs_baseline) avant de déclarer une tâche complète. Cela valide que l'amélioration produit effectivement un résultat mesurable (résumé plus pertinent, score plus élevé) et pas seulement du code qui compile.",
-      "confidence": "haute",
-      "reusable_for": "Validation d'améliorations algorithmiques; métriques de qualité"
-    },
-    {
-      "category": "gotcha",
-      "learning": "Les cas limites (texte vide, une seule phrase, texte très court) ne sont pas testés par défaut. Ajouter des tests explicites pour ces cas avant de finaliser. Cela prévient les crashes en production et force à définir le comportement attendu.",
-      "confidence": "haute",
-      "reusable_for": "Robustesse de code; gestion d'erreurs"
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Une interface attendue (signatures de fonctions importées par les tests) doit être extraite AVANT la génération. Utiliser grep/ast pour lister exactement ce qui est importé, puis générer les fonctions avec les bons noms, visibilité et signatures. Cela prévient les ruptures import/export.",
-      "confidence": "haute",
-      "reusable_for": "Génération de code compatible avec tests existants; refactoring"
-    }
-  ],
-  "patterns_seen_again": [
-    "Un self-test rapporté comme 'OK' est non-fiable si le code généré est incomplet",
-    "Après génération d'une fonction principale complexe, ajouter une étape de vérification de dépendances",
-    "La rupture entre interface attendue et implémentation bloque l'exécution"
-  ],
-  "promote_to_claude_md": [
-    "Toujours ajouter un test d'intégration end-to-end qui appelle la fonction principale et valide sa sortie complète (type, longueur, contenu non-vide) — détecte les fonctions tronquées",
-    "Intégrer un facteur de position (ex: +20% pour phrases 0-2 et dernière phrase) dans le scoring TF-IDF pour améliorer la qualité des résumés",
-    "Ajouter des tests spécifiques pour chaque amélioration algorithmique avant de déclarer une tâche complète — valide que l'amélioration produit un résultat mesurable"
-  ]
+  "learnings": [],
+  "patterns_seen_again": [],
+  "promote_to_claude_md": []
 }

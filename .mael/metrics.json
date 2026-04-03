@@ -295,12 +295,52 @@
       "score": 24,
       "details": "Le code est incomplet et cassé. Le fichier tools/summarize.py a été tronqué au milieu de la fonction (ligne 'sentence.low' inachevée). L'implémentation TF-IDF simplifié est conceptuellement bonne (stop words français, Counter, scoring par phrase), mais elle n'a jamais été complétée. Les tests échouent car les fonctions attendues (split_sentences, score_sentence) ne sont pas exportées. Le module ne peut pas être importé. Les critères d'acceptation ne sont pas satisfaits : les tests existants ne passent pas (ImportError), et la qualité du résumé ne peut pas être vérifiée. La tendance du score moyen (52.8, declining) s'aggrave avec ce résultat catastrophique.",
       "timestamp": "2026-04-03T22:48:49.706018"
+    },
+    {
+      "iteration": 1,
+      "task_id": 1,
+      "verdict": "FAIL",
+      "score": 22,
+      "details": "La tâche a échoué critiquement : l'import de `summarize_text` depuis `tools/summarize.py` est impossible. Cela indique que soit (1) la fonction n'existe pas dans le module, soit (2) elle porte un nom différent. Les tests unitaires eux-mêmes sont bien structurés avec assertions vérifiables et cas d'usage pertinents (texte vide, phrase unique, contraintes de longueur), mais ils ne peuvent pas s'exécuter. Le fichier de test a été créé mais reste inutilisable. Aucun des critères d'acceptation n'est satisfait : pas de tests passants, pas de coverage mesurable, pas de validation fonctionnelle. La phase AGIR a produit du code de qualité syntaxique mais déconnecté de la réalité du codebase.",
+      "timestamp": "2026-04-03T23:07:27.502752"
+    },
+    {
+      "iteration": 5,
+      "task_id": 4,
+      "verdict": "FAIL",
+      "score": 24,
+      "details": "La solution échoue complètement à l'exécution. Le problème principal est que sys.path.insert() ne fonctionne pas correctement avec pytest. Le module 'summarize' n'est pas trouvé lors de l'import, causant une ModuleNotFoundError. Les tests ne sont jamais exécutés (0 items collected). Le code des tests est bien structuré et les assertions sont correctes, mais l'infrastructure d'import est défectueuse. La tentative de contourner le problème avec sys.path est une anti-pattern qui ne fonctionne pas de manière fiable avec pytest. Les critères d'acceptation demandent '3 tests verts' mais aucun test n'a pu s'exécuter.",
+      "timestamp": "2026-04-03T23:08:08.358619"
+    },
+    {
+      "iteration": 6,
+      "task_id": 4,
+      "verdict": "FAIL",
+      "score": 22,
+      "details": "La tâche demande de créer des tests qui PASSENT (3 tests verts). Or, les tests échoient à l'import car le module summarize.py n'existe pas ou n'est pas accessible. Le fichier test_summarize.py est bien structuré et idiomatique (bonne qualité du code), mais il ne satisfait pas le critère d'acceptation fondamental : 'pytest tests/test_summarize.py passe avec 3 tests verts'. L'erreur ModuleNotFoundError indique une dépendance manquante non résolue. Les tests eux-mêmes sont corrects en structure mais inutiles sans le module à tester. La gestion d'erreur avec pytest.fail() est appropriée mais masque le vrai problème : l'absence de summarize.py ou sa mauvaise localisation.",
+      "timestamp": "2026-04-03T23:08:48.504924"
+    },
+    {
+      "iteration": 7,
+      "task_id": 4,
+      "verdict": "FAIL",
+      "score": 22,
+      "details": "La tâche demande 3 tests verts passants. Le résultat obtenu est un échec d'import : ModuleNotFoundError: No module named 'summarizer'. Les tests ne peuvent pas s'exécuter car le module source n'existe pas ou n'est pas accessible. Le code de test lui-même est bien structuré (bonne qualité, gestion d'erreur d'import), mais il est inutile sans le module à tester. Les critères d'acceptation ne sont pas satisfaits : 0 tests verts au lieu de 3. La dépendance critique (src/summarizer.py avec fonction summarize()) n'a pas été créée ou n'est pas dans le bon chemin.",
+      "timestamp": "2026-04-03T23:09:13.756709"
+    },
+    {
+      "iteration": 8,
+      "task_id": 4,
+      "verdict": "PARTIAL",
+      "score": 53,
+      "details": "La tâche demande explicitement 'créer la structure de test avec cas d'entrée/sortie simples' et 'pytest tests/test_summarize.py passe avec 3 tests verts'. Le résultat fourni montre : (1) création du stub summarizer.py ✓ (2) validation import ✓ (3) MAIS aucun fichier tests/test_summarize.py créé ✗ (4) aucun test exécuté pour cette tâche ✗. Les résultats affichés concernent d'autres tests (test_autonomy.py, test_engine.py, test_executor.py) non pertinents. Le conftest.py mentionné dans l'analyse n'a pas été créé. La phase AGIR a échoué à livrer les 3 tests verts demandés. Seule la fondation (stub) a été posée, pas la structure de test elle-même.",
+      "timestamp": "2026-04-03T23:09:39.458527"
     }
   ],
   "aggregate": {
-    "total_iterations": 37,
-    "success_rate": 0.27,
-    "avg_score": 52.0,
+    "total_iterations": 42,
+    "success_rate": 0.238,
+    "avg_score": 49.2,
     "mutations_applied": 0
   }
 }
