@@ -48,3 +48,9 @@
 **Learning** : Approach worked for task type: Tests unitaires et intégration
 **Confiance** : haute
 **Utilisations** : 0
+
+### [2026-04-03] Iteration 1 — success_pattern
+**Contexte** : Task: Tests unitaires et intégration v0.2
+**Learning** : Task scored 75/100
+**Confiance** : haute
+**Utilisations** : 0

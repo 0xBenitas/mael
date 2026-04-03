@@ -1,7 +1,16 @@
 {
-  "task_id": 1,
+  "task_id": 6,
   "verdict": "SUCCESS",
-  "score": 75.0,
-  "details": "Evaluated against: Le script tourne, lit/écrit state.json, produit des logs, et gère les métriques.",
-  "timestamp": "2026-04-03T21:36:53.243770"
+  "score": 75,
+  "scores": {
+    "correctness": 16,
+    "completeness": 15,
+    "quality": 15,
+    "testability": 14,
+    "learning": 15
+  },
+  "critique": "Mock evaluation — task appears well-structured.",
+  "suggestion": "",
+  "test_output": "============================= test session starts ==============================\nplatform linux -- Python 3.11.15, pytest-9.0.2, pluggy-1.6.0 -- /usr/local/bin/python\ncachedir: .pytest_cache\nrootdir: /home/user/mael\nplugins: anyio-4.13.0\ncollecting ... collected 25 items\n\ntests/test_engine.py::test_full_dry_run_loop PASSED                      [  4%]\ntests/test_engine.py::test_dry_run_with_mutation_interval PASSED         [  8%]\ntests/test_engine.py::test_parse_json_with_markdown_fences PASSED        [ 12%]\ntests/test_engine.py::test_parse_json_fallback PASSED                    [ 16%]\ntests/test_llm.py::test_estimate_cost_haiku PASSED                       [ 20%]\ntests/test_llm.py::test_estimate_cost_sonnet PASSED                      [ 24%]\ntests/test_llm.py::test_cost_scales_linearly PASSED                      [ 28%]\ntests/test_memory.py::test_add_and_get_learning PASSED                   [ 32%]\ntests/test_memory.py::test_increment_learning_usage PASSED               [ 36%]\ntests/test_memory.py::test_promote_to_claude_md PASSED                   [ 40%]\ntests/test_memory.py::test_record_iteration_and_trend PASSED             [ 44%]\ntests/test_mutator.py::test_analyze_detects_high_failure PASSED          [ 48%]\ntests/test_mutator.py::test_analyze_healthy_system PASSED                [ 52%]\ntests/test_mutator.py::test_propose_mutations_on_failure PASSED          [ 56%]\ntests/test_mutator.py::test_no_mutations_when_healthy PASSED             [ 60%]\ntests/test_selfrefine.py::test_self_refine_converges PASSED              [ 64%]\ntests/test_selfrefine.py::test_self_refine_max_iterations PASSED         [ 68%]\ntests/test_selfrefine.py::test_self_refine_no_score PASSED               [ 72%]\ntests/test_state.py::test_next_task_returns_pending PASSED               [ 76%]\ntests/test_state.py::test_next_task_returns_in_progress_first PASSED     [ 80%]\ntests/test_state.py::test_next_task_none_when_all_done PASSED            [ 84%]\ntests/test_state.py::test_complete_task PASSED                           [ 88%]\ntests/test_state.py::test_complete_last_task_sets_all_complete PASSED    [ 92%]\ntests/test_state.py::test_start_task PASSED                              [ 96%]\ntests/test_state.py::test_save_and_load_roundtrip PASSED                 [100%]\n\n============================== 25 passed in 2.83s ==============================\n",
+  "timestamp": "2026-04-03T21:47:19.459873"
 }

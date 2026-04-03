@@ -1,8 +1,11 @@
-"""MAEL Engine — The main loop orchestrator.
+"""MAEL Engine v0.2 — The main loop orchestrator with LLM integration.
 
 Runs the 4-phase cycle: AGIR → ÉVALUER → APPRENDRE → MUTER
+Each phase now calls Claude (Haiku for routine, Sonnet for mutations).
 """
 
+import json
+import subprocess
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -11,19 +14,36 @@ from .state import load_state, save_state, next_task, complete_task, start_task,
 from .memory import (
     add_learning, record_iteration, get_learnings,
     increment_learning_usage, promote_to_claude_md, get_trend,
+    load_metrics, log_mutation,
 )
-from .mutator import analyze_performance, propose_mutations, apply_mutation
+from .prompts import (
+    SYSTEM_MAEL, PHASE_ACT, PHASE_EVALUATE, PHASE_LEARN, PHASE_MUTATE,
+)
 
 LOG_DIR = Path(".mael/logs")
+CLAUDE_MD = Path("CLAUDE.md")
+
+# Track costs across the session
+_session_costs = {"input_tokens": 0, "output_tokens": 0, "estimated_usd": 0.0}
 
 
-def run_loop(max_iterations: int = 50, mutation_interval: int = 5) -> dict:
+def run_loop(max_iterations: int = 50, mutation_interval: int = 5,
+             dry_run: bool = False) -> dict:
     """Run the MAEL loop.
 
-    Returns a summary dict of the entire run.
+    Args:
+        max_iterations: Max iterations before stopping.
+        mutation_interval: Run MUTER phase every N iterations.
+        dry_run: If True, use mock LLM responses (for testing).
+
+    Returns:
+        Summary dict of the entire run.
     """
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    summary = {"iterations": 0, "completed_tasks": 0, "mutations": 0}
+    summary = {
+        "iterations": 0, "completed_tasks": 0, "mutations": 0,
+        "total_cost_usd": 0.0,
+    }
 
     for i in range(1, max_iterations + 1):
         state = load_state()
@@ -42,177 +62,356 @@ def run_loop(max_iterations: int = 50, mutation_interval: int = 5) -> dict:
         _log(f"{'=' * 60}")
 
         # ── Phase 1: AGIR ──
-        act_result = phase_act(state, task, i)
+        act_result = phase_act(state, task, i, dry_run=dry_run)
 
         # ── Phase 2: ÉVALUER ──
-        eval_result = phase_evaluate(state, task, act_result, i)
+        eval_result = phase_evaluate(state, task, act_result, i, dry_run=dry_run)
 
         # ── Phase 3: APPRENDRE ──
-        phase_learn(state, task, eval_result, i)
+        phase_learn(state, task, eval_result, i, dry_run=dry_run)
 
         # ── Phase 4: MUTER (every N iterations) ──
         if i % mutation_interval == 0:
-            mutations = phase_mutate(i)
+            mutations = phase_mutate(i, dry_run=dry_run)
             summary["mutations"] += mutations
 
         summary["iterations"] = i
         if eval_result["verdict"] == "SUCCESS":
             summary["completed_tasks"] += 1
 
+    summary["total_cost_usd"] = round(_session_costs["estimated_usd"], 4)
     summary["final_state"] = load_state()["status"]
     return summary
 
 
-def phase_act(state: dict, task: dict, iteration: int) -> dict:
-    """Phase 1: AGIR — Execute the current task."""
-    _log(f"[AGIR] Starting task #{task['id']}: {task['title']}")
+# ── Phase implementations ────────────────────────────────────────────
+
+def phase_act(state: dict, task: dict, iteration: int,
+              dry_run: bool = False) -> dict:
+    """Phase 1: AGIR — Ask the LLM to execute the task."""
+    _log(f"[AGIR] Task #{task['id']}: {task['title']}")
 
     state = start_task(state, task["id"])
     save_state(state)
 
+    claude_md = _read_claude_md()
+    learnings = get_learnings()
+
+    prompt = PHASE_ACT.format(
+        iteration=iteration,
+        task_id=task["id"],
+        task_title=task["title"],
+        task_description=task["description"],
+        task_acceptance=task.get("acceptance", "N/A"),
+        claude_md=claude_md[:2000],  # Limit context size
+        learnings=learnings[-2000:] if learnings else "(none)",
+    )
+
+    if dry_run:
+        response = _mock_act_response(task)
+    else:
+        from .llm import ask, FAST
+        response = ask(prompt, system=SYSTEM_MAEL, model=FAST, max_tokens=4096)
+
     result = {
         "task_id": task["id"],
-        "action": f"Executing: {task['description']}",
+        "response": response,
         "timestamp": datetime.now().isoformat(),
     }
 
     _log_to_file(f"iter_{iteration}_1_act.log", result)
+    _log(f"[AGIR] Response: {response[:200]}...")
     return result
 
 
 def phase_evaluate(state: dict, task: dict, act_result: dict,
-                   iteration: int) -> dict:
-    """Phase 2: ÉVALUER — Test and score the result."""
+                   iteration: int, dry_run: bool = False) -> dict:
+    """Phase 2: ÉVALUER — Score the result with LLM + tests."""
     _log(f"[ÉVALUER] Evaluating task #{task['id']}")
 
-    # In v0, evaluation is based on task acceptance criteria
-    # In production, this would run tests, linters, etc.
-    score = _evaluate_task(task)
-    verdict = "SUCCESS" if score >= 70 else "PARTIAL" if score >= 40 else "FAIL"
+    # Try running tests if available
+    test_output = _run_tests()
+    metrics = load_metrics()
+    trend = get_trend()
+
+    prompt = PHASE_EVALUATE.format(
+        iteration=iteration,
+        task_id=task["id"],
+        task_title=task["title"],
+        task_acceptance=task.get("acceptance", "N/A"),
+        act_result=act_result["response"][:3000],
+        test_output=test_output[:1000] if test_output else "(no tests run)",
+        avg_score=metrics["aggregate"].get("avg_score", 0),
+        trend=trend.get("direction", "no data"),
+    )
+
+    if dry_run:
+        eval_data = _mock_eval_response(task)
+    else:
+        from .llm import ask_for_json, FAST
+        raw = ask_for_json(prompt, system=SYSTEM_MAEL, model=FAST)
+        eval_data = _parse_json(raw, default_eval())
+
+    score = eval_data.get("total", 75)
+    verdict = eval_data.get("verdict", "SUCCESS" if score >= 70 else "PARTIAL" if score >= 40 else "FAIL")
+    critique = eval_data.get("critique", "")
 
     result = {
         "task_id": task["id"],
         "verdict": verdict,
         "score": score,
-        "details": f"Evaluated against: {task.get('acceptance', 'N/A')}",
+        "scores": eval_data.get("scores", {}),
+        "critique": critique,
+        "suggestion": eval_data.get("suggestion", ""),
+        "test_output": test_output,
         "timestamp": datetime.now().isoformat(),
     }
 
-    # Record metrics
-    record_iteration(iteration, task["id"], verdict, score, result["details"])
+    record_iteration(iteration, task["id"], verdict, score, critique)
 
-    # Complete task if successful
     if verdict == "SUCCESS":
         state = complete_task(state, task["id"])
         save_state(state)
-        _log(f"[ÉVALUER] ✓ Task #{task['id']} SUCCEEDED (score: {score})")
+        _log(f"[ÉVALUER] ✓ SUCCEEDED — score: {score}/100")
     else:
-        _log(f"[ÉVALUER] {'!' if verdict == 'PARTIAL' else '✗'} "
-             f"Task #{task['id']} {verdict} (score: {score})")
+        _log(f"[ÉVALUER] {'!' if verdict == 'PARTIAL' else '✗'} {verdict} — score: {score}/100")
+        if critique:
+            _log(f"[ÉVALUER] Critique: {critique[:200]}")
 
     _log_to_file(f"iter_{iteration}_2_eval.log", result)
     return result
 
 
 def phase_learn(state: dict, task: dict, eval_result: dict,
-                iteration: int) -> None:
-    """Phase 3: APPRENDRE — Extract learnings from this iteration."""
+                iteration: int, dry_run: bool = False) -> None:
+    """Phase 3: APPRENDRE — Extract learnings via LLM."""
     _log(f"[APPRENDRE] Extracting learnings from iteration {iteration}")
 
-    verdict = eval_result["verdict"]
+    learnings = get_learnings()
 
-    if verdict == "SUCCESS":
+    prompt = PHASE_LEARN.format(
+        iteration=iteration,
+        task_title=task["title"],
+        verdict=eval_result["verdict"],
+        score=eval_result["score"],
+        critique=eval_result.get("critique", ""),
+        learnings=learnings[-2000:] if learnings else "(none)",
+    )
+
+    if dry_run:
+        learn_data = _mock_learn_response(eval_result)
+    else:
+        from .llm import ask_for_json, FAST
+        raw = ask_for_json(prompt, system=SYSTEM_MAEL, model=FAST)
+        learn_data = _parse_json(raw, {"learnings": [], "patterns_seen_again": [], "promote_to_claude_md": []})
+
+    # Record new learnings
+    for item in learn_data.get("learnings", []):
         add_learning(
             iteration=iteration,
-            category="success_pattern",
+            category=item.get("category", "general"),
             context=f"Task: {task['title']}",
-            learning=f"Approach worked for task type: {task.get('title', 'unknown')}",
-            confidence="haute",
-        )
-    elif verdict == "FAIL":
-        add_learning(
-            iteration=iteration,
-            category="failure_analysis",
-            context=f"Task: {task['title']} — Score: {eval_result['score']}",
-            learning=f"Task failed. Needs different approach or decomposition.",
-            confidence="moyenne",
+            learning=item.get("learning", ""),
+            confidence=item.get("confidence", "moyenne"),
         )
 
-    _log_to_file(f"iter_{iteration}_3_learn.log", {
-        "verdict": verdict,
-        "learnings_added": 1,
-    })
+    # Check for reused patterns
+    for pattern in learn_data.get("patterns_seen_again", []):
+        count = increment_learning_usage(pattern)
+        if count >= 2:
+            _log(f"[APPRENDRE] Promoting pattern (used {count}x): {pattern[:80]}")
+            promote_to_claude_md(pattern)
+
+    # Direct promotions from LLM
+    for promo in learn_data.get("promote_to_claude_md", []):
+        promote_to_claude_md(promo)
+
+    n = len(learn_data.get("learnings", []))
+    _log(f"[APPRENDRE] Added {n} learning(s)")
+
+    _log_to_file(f"iter_{iteration}_3_learn.log", learn_data)
 
 
-def phase_mutate(iteration: int) -> int:
-    """Phase 4: MUTER — The Ouroboros phase. Improve the process itself."""
-    _log(f"[MUTER] 🐍 Ouroboros phase — analyzing last iterations...")
+def phase_mutate(iteration: int, dry_run: bool = False) -> int:
+    """Phase 4: MUTER — The Ouroboros phase. Uses Sonnet for meta-reasoning."""
+    _log(f"[MUTER] 🐍 Ouroboros phase — the loop improves itself...")
 
-    analysis = analyze_performance()
+    metrics = load_metrics()
+    trend = get_trend()
+    recent = metrics["iterations"][-5:]
+    mutations_file = Path(".mael/mutations.md")
+    past_mutations = ""
+    if mutations_file.exists():
+        past_mutations = mutations_file.read_text(encoding="utf-8")[-1000:]
 
-    if not analysis["needs_mutation"]:
-        _log("[MUTER] No mutation needed. Process is healthy.")
-        return 0
+    metrics_summary = "\n".join(
+        f"  Iter {m['iteration']}: {m['verdict']} (score {m['score']})"
+        for m in recent
+    )
 
-    mutations = propose_mutations(analysis)
-    _log(f"[MUTER] Proposed {len(mutations)} mutation(s):")
+    prompt = PHASE_MUTATE.format(
+        iteration=iteration,
+        n_last=len(recent),
+        metrics_summary=metrics_summary or "(no data)",
+        trend=json.dumps(trend),
+        past_mutations=past_mutations or "(none)",
+        act_prompt_preview=PHASE_ACT[:100] + "...",
+        eval_prompt_preview=PHASE_EVALUATE[:100] + "...",
+        learn_prompt_preview=PHASE_LEARN[:100] + "...",
+    )
+
+    if dry_run:
+        mutate_data = _mock_mutate_response()
+    else:
+        from .llm import ask_for_json, SMART
+        raw = ask_for_json(prompt, system=SYSTEM_MAEL, model=SMART, max_tokens=4096)
+        mutate_data = _parse_json(raw, {"analysis": "", "health": "healthy", "mutations": []})
+
+    health = mutate_data.get("health", "healthy")
+    _log(f"[MUTER] System health: {health}")
+    _log(f"[MUTER] Analysis: {mutate_data.get('analysis', '')[:200]}")
 
     applied = 0
-    for m in mutations:
-        if m.confidence >= 0.5:  # Only apply confident mutations
-            apply_mutation(m, iteration)
-            _log(f"  → Applied: {m.mutation_type} on '{m.target}' ({m.reason})")
+    for m in mutate_data.get("mutations", []):
+        confidence = m.get("confidence", 0)
+        if confidence >= 0.5:
+            log_mutation(
+                iteration=iteration,
+                mutation_type=m.get("type", "unknown"),
+                target=m.get("target", ""),
+                before=m.get("before_summary", ""),
+                after=m.get("after", ""),
+                reason=m.get("reason", ""),
+            )
+            _log(f"[MUTER] Applied mutation: {m['type']} → {m['target']}")
             applied += 1
         else:
-            _log(f"  → Skipped (low confidence): {m.mutation_type} on '{m.target}'")
+            _log(f"[MUTER] Skipped (confidence {confidence}): {m.get('target', '')}")
 
-    _log_to_file(f"iter_{iteration}_4_mutate.log", {
-        "analysis": analysis,
-        "mutations_proposed": len(mutations),
-        "mutations_applied": applied,
-    })
+    _log_to_file(f"iter_{iteration}_4_mutate.log", mutate_data)
     return applied
 
 
-def _evaluate_task(task: dict) -> float:
-    """Evaluate a task. v0: heuristic. Future: run tests + LLM judge."""
-    # Check if task has associated test files or acceptance criteria
-    if task.get("status") == "completed":
-        return 100.0
-    # Default: task was attempted, give partial credit
-    return 75.0
+# ── Helpers ──────────────────────────────────────────────────────────
+
+def _read_claude_md() -> str:
+    if CLAUDE_MD.exists():
+        return CLAUDE_MD.read_text(encoding="utf-8")
+    return ""
+
+
+def _run_tests() -> str:
+    """Run pytest and return output. Returns empty string on error."""
+    try:
+        result = subprocess.run(
+            ["python", "-m", "pytest", "tests/", "-v", "--tb=short"],
+            capture_output=True, text=True, timeout=60,
+        )
+        return result.stdout + result.stderr
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return ""
+
+
+def _parse_json(raw: str, default: dict) -> dict:
+    """Parse JSON from LLM response, with fallback."""
+    # Strip markdown code fences if present
+    text = raw.strip()
+    if text.startswith("```"):
+        lines = text.split("\n")
+        text = "\n".join(lines[1:])
+        if text.endswith("```"):
+            text = text[:-3]
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        _log(f"[WARN] Failed to parse JSON, using defaults. Raw: {raw[:200]}")
+        return default
+
+
+def default_eval() -> dict:
+    return {
+        "scores": {"correctness": 15, "completeness": 15, "quality": 15,
+                    "testability": 15, "learning": 15},
+        "total": 75, "verdict": "SUCCESS", "critique": "", "suggestion": "",
+    }
+
+
+# ── Mock responses for dry-run / testing ─────────────────────────────
+
+def _mock_act_response(task: dict) -> str:
+    return f"### Analyse\nTask '{task['title']}' analysée.\n\n### Implémentation\nCode simulé.\n"
+
+
+def _mock_eval_response(task: dict) -> dict:
+    return {
+        "scores": {"correctness": 16, "completeness": 15, "quality": 15,
+                    "testability": 14, "learning": 15},
+        "total": 75, "verdict": "SUCCESS",
+        "critique": "Mock evaluation — task appears well-structured.",
+        "suggestion": "",
+    }
+
+
+def _mock_learn_response(eval_result: dict) -> dict:
+    return {
+        "learnings": [{
+            "category": "success_pattern",
+            "learning": f"Task scored {eval_result['score']}/100",
+            "confidence": "haute",
+            "reusable_for": "similar tasks",
+        }],
+        "patterns_seen_again": [],
+        "promote_to_claude_md": [],
+    }
+
+
+def _mock_mutate_response() -> dict:
+    return {
+        "analysis": "System performing at acceptable level.",
+        "health": "healthy",
+        "mutations": [],
+    }
 
 
 def _log(message: str) -> None:
-    """Print a log message."""
     print(f"[MAEL] {message}", flush=True)
 
 
-def _log_to_file(filename: str, data: dict) -> None:
-    """Write structured log to file."""
-    import json
+def _log_to_file(filename: str, data) -> None:
     filepath = LOG_DIR / filename
-    filepath.write_text(
-        json.dumps(data, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-    )
+    if isinstance(data, str):
+        filepath.write_text(data, encoding="utf-8")
+    else:
+        filepath.write_text(
+            json.dumps(data, indent=2, ensure_ascii=False, default=str) + "\n",
+            encoding="utf-8",
+        )
 
 
 # ── CLI entry point ──────────────────────────────────────────────────
 
 def main():
-    """CLI entry point."""
-    max_iter = int(sys.argv[1]) if len(sys.argv) > 1 else 50
-    _log(f"Starting MAEL loop (max {max_iter} iterations)")
+    """CLI entry point.
+
+    Usage: python -m mael.engine [max_iterations] [--dry-run]
+    """
+    args = sys.argv[1:]
+    dry_run = "--dry-run" in args
+    args = [a for a in args if a != "--dry-run"]
+    max_iter = int(args[0]) if args else 50
+
+    mode = "DRY RUN (mock LLM)" if dry_run else "LIVE (Claude API)"
+    _log(f"Starting MAEL loop — {mode} — max {max_iter} iterations")
     _log(f"{'=' * 60}")
 
-    summary = run_loop(max_iterations=max_iter)
+    summary = run_loop(max_iterations=max_iter, dry_run=dry_run)
 
     _log(f"\n{'=' * 60}")
     _log(f"MAEL COMPLETE")
     _log(f"  Iterations: {summary['iterations']}")
     _log(f"  Tasks completed: {summary['completed_tasks']}")
     _log(f"  Mutations applied: {summary['mutations']}")
+    _log(f"  Estimated cost: ${summary['total_cost_usd']}")
     _log(f"  Final status: {summary['final_state']}")
     _log(f"{'=' * 60}")
 
