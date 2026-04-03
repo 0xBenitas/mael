@@ -151,12 +151,156 @@
       "score": 20,
       "details": "La tâche a échoué critiquement. Le fichier `tests/test_summarize.py` est incomplet (troncature à l'import), causant une erreur de syntaxe. L'import validation échoue car `src/summarize.py` n'existe pas ou n'est pas accessible. Les tests ne peuvent pas s'exécuter. Le pattern d'import validation a été appliqué correctement (bonne pratique), mais le module source manquant invalide toute la suite. Aucun test n'a pu être exécuté. La génération par blocs a été interrompue avant completion.",
       "timestamp": "2026-04-03T22:29:02.730393"
+    },
+    {
+      "iteration": 1,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 20,
+      "details": "La tâche a échoué critiquement. Le fichier test généré est incomplet (coupé au milieu de la dernière fonction), l'importation échoue (chemin incorrect 'from summarize' au lieu de 'from tools.summarize'), et aucun test n'a pu s'exécuter. Le pattern d'exécution immédiate n'a pas été appliqué : le code a été écrit sans validation préalable que le module source existe et est importable. Les 8 tests planifiés ne sont pas tous présents (seulement 6 visibles, le dernier tronqué). L'erreur 'file or directory not found' indique une mauvaise gestion du contexte d'exécution. Le score déclinant (64.8) n'a pas déclenché d'ajustement de stratégie.",
+      "timestamp": "2026-04-03T22:40:31.455944"
+    },
+    {
+      "iteration": 2,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 30,
+      "details": "Le fichier de test est incomplet et syntaxiquement invalide. La génération s'est arrêtée au milieu de la fonction `test_long_text_truncated` (ligne incomplète avec `re`). Les erreurs critiques : 1) Import path incorrect (`from tools.summarize` vs module non trouvé), 2) Fichier tronqué (150 lignes non respectées, code cassé), 3) Aucun test n'a pu s'exécuter (INTERNALERROR), 4) Les critères d'acceptation (tous les tests passent + couverture cas limites) ne sont pas satisfaits. Le learning sur l'importabilité AVANT génération complète n'a pas été appliqué : il fallait valider que `tools/summarize.py` existe et est importable avant de générer les tests.",
+      "timestamp": "2026-04-03T22:40:49.452989"
+    },
+    {
+      "iteration": 3,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 20,
+      "details": "La tâche a échoué sur plusieurs fronts critiques : (1) Le fichier test est incomplet (ligne 'ass' tronquée, test inachevé). (2) Les tests ne s'exécutent pas : erreur d'import 'No module named summarize' indique que le chemin d'import est incorrect (devrait être 'from tools.summarize import...' mais le module tools n'existe pas ou n'est pas accessible). (3) Aucun test n'a réellement exécuté (collected 0 items). (4) Les critères d'acceptation ne sont pas satisfaits : les tests ne passent pas avec pytest, la couverture des cas limites est déclarée mais non validée. (5) Le code généré est syntaxiquement invalide et incomplet. (6) La structure du projet (répertoire tools/, __init__.py) n'a pas été vérifiée avant d'écrire les tests.",
+      "timestamp": "2026-04-03T22:41:07.517910"
+    },
+    {
+      "iteration": 4,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 36,
+      "details": "Le code des tests est structurellement correct et bien écrit (classes, docstrings, assertions claires), mais l'exécution échoue complètement. Deux problèmes critiques : (1) Le fichier test_summarize.py est tronqué (la dernière assertion n'est pas fermée), ce qui cause une erreur de syntaxe Python. (2) Il existe un conflit avec test_import_validation.py qui tente un import incorrect (from summarize au lieu de from tools.summarize), causant une erreur INTERNALERROR qui empêche pytest de collecter les tests. Les critères d'acceptation (tous les tests passent, couverture des cas limites) ne sont pas satisfaits : 0 test n'a pu s'exécuter. La couverture des cas limites est conceptuellement bonne (empty_text, short_text, long_text, max_sentences=1) mais reste théorique.",
+      "timestamp": "2026-04-03T22:41:26.763866"
+    },
+    {
+      "iteration": 5,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 22,
+      "details": "La tâche a échoué critiquement. Le fichier test a été généré mais pytest ne le trouve pas (erreur 'file or directory not found'). Les imports sont cassés : le test importe 'from tools.summarize' mais le module source n'existe pas ou n'est pas accessible. L'exécution montre 'No module named summarize'. Le fichier test lui-même est tronqué (la dernière méthode est incomplète : 'def test_split_empty_string(self): \"\"\"Test s'). Aucun test n'a pu être collecté (0 items). Les critères d'acceptation (tous les tests passent + couverture des cas limites) ne sont pas satisfaits.",
+      "timestamp": "2026-04-03T22:41:45.431758"
+    },
+    {
+      "iteration": 6,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 36,
+      "details": "La tâche a échoué critiquement. Bien que le fichier `tests/test_summarize.py` ait été créé avec une syntaxe correcte et une structure de test appropriée (classes, docstrings, assertions), l'exécution des tests a échoué avec une erreur d'import fatale : `ModuleNotFoundError: No module named 'summarize'`. Les tests ne peuvent pas s'exécuter car le module `tools.summarize` n'est pas accessible dans le chemin Python. Le critère d'acceptation principal « Tous les tests passent avec pytest » n'est pas satisfait. De plus, le fichier test est incomplet (la classe `TestSplitSentences` n'a qu'une méthode vide). La validation préalable a réussi (`import tools.summarize`), mais l'exécution réelle des tests révèle un problème de configuration ou de structure du projet.",
+      "timestamp": "2026-04-03T22:42:18.066715"
+    },
+    {
+      "iteration": 7,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 41,
+      "details": "Le fichier test a été généré avec une bonne structure et syntaxe valide, mais l'exécution a échoué pour deux raisons critiques : (1) Le fichier n'existait pas au moment de la validation (rm a supprimé avant la compilation), créant une course de condition. (2) Plus grave : les tests importent depuis 'tools.summarize' mais le module tools/summarize.py n'existe pas ou n'est pas accessible. Les tests eux-mêmes sont bien structurés (classes, docstrings, assertions claires) mais incomplets : ils ne couvrent pas les cas limites promis (texte très long, max_sentences=1, texte avec caractères spéciaux). Les assertions sont aussi trop faibles (ex: 'assert len(result) >= 1' au lieu de vérifier le contenu exact). Le critère d'acceptation 'Tous les tests passent avec pytest' n'est pas satisfait.",
+      "timestamp": "2026-04-03T22:42:39.045925"
+    },
+    {
+      "iteration": 8,
+      "task_id": 2,
+      "verdict": "PARTIAL",
+      "score": 45,
+      "details": "Le fichier test_summarize.py a été créé avec une bonne structure (3 classes de test, 7 tests collectés) et une syntaxe valide. Cependant, l'exécution échoue critiquement : ImportError sur le module 'summarize'. Le problème vient d'une incohérence entre le chemin d'import dans les tests (from tools.summarize import...) et le chemin réel du module. Le fichier test_import_validation.py tente d'importer directement 'summarize' sans le préfixe 'tools.', ce qui provoque l'erreur INTERNALERROR. De plus, le dernier test (test_long_text_above_max) est incomplet - l'assertion est coupée à 'assert len'. Les tests couvrent bien les cas limites (texte vide, court, long, max_sentences=1) mais ne peuvent pas s'exécuter. La qualité du code est bonne (noms clairs, docstrings, assertions appropriées) mais l'intégration avec le système de test existant est défaillante.",
+      "timestamp": "2026-04-03T22:42:58.337825"
+    },
+    {
+      "iteration": 9,
+      "task_id": 2,
+      "verdict": "PARTIAL",
+      "score": 45,
+      "details": "Le fichier test_summarize.py a été créé avec une bonne structure (4 classes de test, 7 cas couverts). Cependant, l'exécution révèle un problème critique : le test échoue à l'import du module 'summarize'. L'erreur 'ModuleNotFoundError: No module named summarize' indique que le chemin d'import est incorrect dans tests/test_summarize.py. Le code utilise 'from tools.summarize import...' mais le système ne trouve pas le module. Deux problèmes identifiés : (1) Le fichier tools/summarize.py n'existe probablement pas ou n'est pas accessible via le chemin spécifié. (2) Le fichier test_summarize.py est incomplet (voir 'def test_max_' tronqué à la fin). Les tests qui ont pu être collectés montrent une bonne couverture conceptuelle (cas vides, texte court, texte long, max_sentences), mais l'exécution réelle échoue. La qualité du code écrit est bonne (classes bien organisées, docstrings clairs, assertions appropriées), mais l'intégration avec le module à tester est défaillante.",
+      "timestamp": "2026-04-03T22:43:16.363098"
+    },
+    {
+      "iteration": 10,
+      "task_id": 2,
+      "verdict": "PARTIAL",
+      "score": 43,
+      "details": "Le fichier de test a été créé avec une bonne structure (classes de test organisées par cas d'usage, noms explicites). Cependant, l'exécution révèle des problèmes critiques : (1) Le fichier est incomplet — la dernière ligne du test `test_long_text_truncated` est coupée (`assert len(s`), ce qui cause une erreur de syntaxe. (2) L'import initial a réussi mais l'exécution pytest finale échoue avec une erreur de module non trouvé, suggérant un problème de chemin ou de configuration PYTHONPATH. (3) Les 11 tests collectés initialement ne correspondent pas aux 13 items finaux, indiquant une incohérence. (4) Aucune couverture de code n'a été rapportée (critère d'acceptation : 'Couverture des cas limites'). Les tests couvrent bien les cas limites conceptuellement (vide, court, long, max_sentences=1) mais l'implémentation est inachevée et non exécutable.",
+      "timestamp": "2026-04-03T22:43:39.298905"
+    },
+    {
+      "iteration": 1,
+      "task_id": 3,
+      "verdict": "FAIL",
+      "score": 42,
+      "details": "Le code implémente correctement l'algorithme TF-IDF simplifié et produit des résumés pertinents (test manuel réussi). Cependant, il y a une rupture critique : le fichier est incomplet (coupé au milieu de la fonction) et les tests existants échouent car ils importent des fonctions manquantes (split_sentences, score_sentence). La complétude est gravement compromise : les critères d'acceptation exigent que 'les tests existants passent toujours', ce qui n'est pas le cas. Le code n'est pas testable car les fonctions attendues par la suite de tests n'existent pas. La qualité du code écrit est bonne (structure claire, logique TF valide, gestion des stop words), mais l'implémentation est inachevée.",
+      "timestamp": "2026-04-03T22:45:10.052811"
+    },
+    {
+      "iteration": 2,
+      "task_id": 3,
+      "verdict": "FAIL",
+      "score": 33,
+      "details": "Le code implémente correctement la logique TF simplifié et s'exécute sans erreur. Cependant, il y a une rupture critique : le fichier est incomplet (coupé au milieu de la ligne 'sentence_scores.append((i, score, s'). Plus grave, les tests importent des fonctions helper 'split_sentences' et 'score_sentence' qui n'existent pas dans le module, causant une ImportError. Les tests existants ne passent donc pas, violant directement le critère d'acceptation. La qualité du code visible est bonne (logique claire, pas de dépendances externes), mais l'incomplétude et l'absence des fonctions requises rendent la solution non fonctionnelle.",
+      "timestamp": "2026-04-03T22:45:27.169696"
+    },
+    {
+      "iteration": 3,
+      "task_id": 3,
+      "verdict": "PARTIAL",
+      "score": 67,
+      "details": "Le code implémente correctement les trois fonctions attendues (split_sentences, score_sentence, summarize) avec une logique TF-IDF simplifiée fonctionnelle. La compilation et l'import réussissent. Cependant, la fonction summarize() est INCOMPLÈTE : le commentaire 'Select top sentences by score, maintain original order' indique que le tri et la sélection des phrases manquent. Le code s'arrête avant de retourner le résumé final. Les tests passent (44/44) mais cela suggère que les tests existants ne couvrent pas la logique complète de summarize(). La qualité du code est bonne (noms clairs, docstrings, pas de dépendances externes), mais l'implémentation est tronquée. Le scoring TF est correct mais basique (pas de normalisation, pas de filtrage des stop-words). Aucun insight nouveau sur les patterns d'amélioration itérative.",
+      "timestamp": "2026-04-03T22:45:49.392015"
+    },
+    {
+      "iteration": 4,
+      "task_id": 3,
+      "verdict": "FAIL",
+      "score": 50,
+      "details": "Le code implémente correctement l'algorithme TF-IDF simplifié et produit des résumés fonctionnels (validation manuelle réussie). Cependant, il y a une rupture critique : le fichier est incomplet (coupé au milieu de la fonction score_sentence) et les tests existants s'attendent à des fonctions helper (split_sentences, score_sentence) qui ne sont pas exportées. L'ImportError bloque l'exécution de la suite de tests. La qualité du code visible est bonne (structure claire, stop words appropriés, logique TF correcte), mais l'incomplétude et l'incompatibilité avec les tests existants violent les critères d'acceptation. Le code ne passe pas les tests existants comme requis.",
+      "timestamp": "2026-04-03T22:46:08.594523"
+    },
+    {
+      "iteration": 5,
+      "task_id": 3,
+      "verdict": "PARTIAL",
+      "score": 55,
+      "details": "Le fichier tools/summarize.py est INCOMPLET. La fonction summarize() est tronquée à la ligne 'word_freq = get_word_frequencies(text)' sans implémentation du reste de la logique (sélection des phrases, tri par score, retour du résumé). Le self-test rapporté comme 'OK' est trompeur car il teste un code qui n'existe pas complètement. Les fonctions helper (split_sentences, score_sentence, get_word_frequencies) sont correctement définies et exportables, mais la fonction principale est cassée. Les tests pytest rapportent 44 items collectés mais le résultat est tronqué, impossible de vérifier si les tests passent réellement. Ceci reproduit exactement le problème de l'itération 4 : soumission d'un fichier incomplet.",
+      "timestamp": "2026-04-03T22:46:34.255345"
+    },
+    {
+      "iteration": 1,
+      "task_id": 3,
+      "verdict": "PARTIAL",
+      "score": 60,
+      "details": "Le code implémente un scoring TF-IDF simplifié fonctionnel avec extraction de fréquences de mots et normalisation par longueur de phrase. Les tests existants passent (44/44). Cependant, plusieurs lacunes critiques : (1) La fonction summarize() est incomplète - elle s'arrête sans retourner le résumé final, (2) Aucun test spécifique n'a été ajouté pour valider l'amélioration du scoring TF-IDF, (3) La liste de stop words est en anglais alors que le projet est en français, (4) Pas de validation que les résumés produits sont effectivement 'meilleurs' que l'approche précédente, (5) Le scoring ne tient pas compte de la position des phrases (début/fin du texte), (6) Pas de gestion des cas limites (texte vide, une seule phrase).",
+      "timestamp": "2026-04-03T22:47:41.683697"
+    },
+    {
+      "iteration": 2,
+      "task_id": 3,
+      "verdict": "FAIL",
+      "score": 24,
+      "details": "Le code est incomplet et casse l'interface existante. L'implémentation s'arrête au milieu de la fonction calculate_tf_scores() sans retourner les scores. Les fonctions split_sentences() et score_sentence() attendues par les tests existants sont manquantes, causant une ImportError. Le fichier n'est pas exécutable en l'état. Les stop words français sont bien pensés mais la logique TF-IDF n'est pas finalisée. Les tests manuels affichés ne correspondent pas à une véritable validation du scoring TF-IDF.",
+      "timestamp": "2026-04-03T22:48:20.069175"
+    },
+    {
+      "iteration": 3,
+      "task_id": 3,
+      "verdict": "FAIL",
+      "score": 24,
+      "details": "Le code est incomplet et cassé. Le fichier tools/summarize.py a été tronqué au milieu de la fonction (ligne 'sentence.low' inachevée). L'implémentation TF-IDF simplifié est conceptuellement bonne (stop words français, Counter, scoring par phrase), mais elle n'a jamais été complétée. Les tests échouent car les fonctions attendues (split_sentences, score_sentence) ne sont pas exportées. Le module ne peut pas être importé. Les critères d'acceptation ne sont pas satisfaits : les tests existants ne passent pas (ImportError), et la qualité du résumé ne peut pas être vérifiée. La tendance du score moyen (52.8, declining) s'aggrave avec ce résultat catastrophique.",
+      "timestamp": "2026-04-03T22:48:49.706018"
     }
   ],
   "aggregate": {
-    "total_iterations": 19,
-    "success_rate": 0.526,
-    "avg_score": 64.8,
+    "total_iterations": 37,
+    "success_rate": 0.27,
+    "avg_score": 52.0,
     "mutations_applied": 0
   }
 }

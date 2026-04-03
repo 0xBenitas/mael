@@ -2,43 +2,49 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "Avant de générer des tests, valider que le module source existe et est importable. Créer un fichier test minimal (import uniquement) et l'exécuter d'abord. Cela détecte les erreurs de chemin ou de structure avant d'investir dans la génération complète.",
+      "learning": "Les fichiers tronqués (dernière ligne incomplète) passent la validation syntaxique jusqu'au point de troncature mais échouent à l'exécution. Vérifier systématiquement la complétude avec 'tail -5 <file>' ET 'python -m py_compile <file>' ET une exécution partielle (import + inspection) immédiatement après génération.",
       "confidence": "haute",
-      "reusable_for": "Toute tâche de test pour un nouveau module. Pattern de validation préalable applicable à tous les projets."
+      "reusable_for": "Toute génération de code multi-lignes (tests, modules, scripts). Prévient les fichiers syntaxiquement valides mais sémantiquement incomplets."
     },
     {
       "category": "gotcha",
-      "learning": "Générer des tests par blocs de 5-8 avec exécution immédiate après chaque bloc. Évite les fichiers tronqués, les erreurs de syntaxe massives, et permet de corriger les erreurs d'import avant de continuer. La génération monolithique de 34 tests sans validation = risque critique.",
+      "learning": "Une incohérence entre le nombre de tests collectés (11) et le nombre final (13) indique soit une duplication, soit une génération partielle non détectée. Toujours comparer 'pytest --collect-only' avant et après génération pour valider la cohérence.",
       "confidence": "haute",
-      "reusable_for": "Génération de suites de tests volumineuses. Applicable à tout fichier test >200 lignes."
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Valider la complétude du fichier généré : compter les `def test_*`, vérifier la fermeture des fonctions, exécuter `ast.parse()` sur le fichier avant commit. Détecte les troncatures et les erreurs de syntaxe silencieuses.",
-      "confidence": "haute",
-      "reusable_for": "Validation post-génération de tout fichier Python. Ajouter comme étape systématique dans le workflow."
+      "reusable_for": "Validation de suites de tests. Détecte les anomalies de génération avant exécution."
     },
     {
       "category": "optimization",
-      "learning": "Pour un module <200 LOC, 8-12 tests bien ciblés suffisent. Avant de générer 34 tests, justifier le nombre : documenter le ratio tests/LOC et l'intention de chaque test. Évite la sur-ingénierie et réduit le temps de maintenance.",
-      "confidence": "moyenne",
-      "reusable_for": "Planification de suites de tests. Utile pour évaluer la proportionnalité effort/couverture."
+      "learning": "Avant de générer des tests, valider l'importabilité du module cible avec 'python -c \"import <module>; print(dir(<module>))\"'. Cela évite de générer une suite de tests complète mais inutilisable faute de module accessible.",
+      "confidence": "haute",
+      "reusable_for": "Toute tâche de test. Économise du temps en détectant les problèmes d'environnement avant la génération."
     },
     {
       "category": "success_pattern",
-      "learning": "Structure pytest bien intentionnée (logging, isolation) ne suffit pas sans exécution. Pattern obligatoire : (1) générer structure, (2) exécuter immédiatement, (3) corriger erreurs, (4) valider couverture. L'ordre est critique.",
+      "learning": "La structure logique des tests (classes organisées par cas d'usage, docstrings explicites, assertions claires) était correcte conceptuellement. Réutiliser ce pattern : 4 classes (Empty, Short, Long, EdgeCases), chacune avec 2-3 assertions ciblées. Le problème était l'exécution, pas la conception.",
       "confidence": "haute",
-      "reusable_for": "Toute tâche de test. Rappel que la structure seule n'est pas une livrable."
+      "reusable_for": "Conception de suites de test pour utilitaires. Fournit un template réutilisable et maintenable."
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "L'absence de rapport de couverture de code (critère d'acceptation non satisfait) indique que les tests n'ont jamais été exécutés avec succès. Ajouter une étape de validation : 'pytest --cov=<module> --cov-report=term-missing' doit produire un rapport avant de considérer la tâche complète.",
+      "confidence": "haute",
+      "reusable_for": "Validation de tâches de test. Garantit que les critères d'acceptation (couverture) sont mesurables et rapportés."
+    },
+    {
+      "category": "gotcha",
+      "learning": "Un fichier peut être importable mais non exécutable si une fonction est tronquée (ex: 'def test_max_' sans corps). La compilation Python ne détecte pas cela. Ajouter une vérification : tous les 'def' doivent être suivis d'au moins une ligne indentée (assertion, pass, ou docstring).",
+      "confidence": "haute",
+      "reusable_for": "Validation de fichiers Python générés. Prévient les fonctions/méthodes orphelines."
     }
   ],
   "patterns_seen_again": [
-    "Générer par blocs de 5-8 tests, exécuter immédiatement, valider la syntaxe et l'import, puis continuer. Évite les fichiers tronqués et les erreurs de masse.",
-    "Fichier test coupé au milieu indique une génération interrompue. Toujours vérifier la complétude du fichier généré : compter les def test_*, vérifier la fermeture des fonctions, valider la syntaxe avec ast.parse() avant commit.",
-    "Avant d'écrire des tests, valider que le module source existe et est importable. Ajouter une étape 'Import validation' : créer un fichier test minimal qui importe uniquement le module, l'exécuter, puis procéder aux tests complets."
+    "Les fichiers tronqués (ici 'def test_max_' incomplet) peuvent masquer des problèmes d'import qui ne se manifestent qu'à l'exécution. Vérifier la complétude avec 'tail -20 <file>' ET 'python -m py_compile <file>' immédiatement après génération.",
+    "Avant de générer des tests, valider que le module à tester existe et est importable. Ajouter une étape de diagnostic préalable : 'python -c \"import tools.summarize; print(dir(tools.summarize))\"'.",
+    "La structure logique des tests (4 classes, docstrings, assertions organisées) était correcte et réutilisable. Le problème n'était pas la conception mais l'environnement."
   ],
   "promote_to_claude_md": [
-    "Import validation step: Always create and execute a minimal test file (import only) before generating full test suite. Detects path/structure errors early.",
-    "Incremental test generation: Generate tests in blocks of 5-8, execute immediately after each block, validate syntax and imports before continuing. Prevents truncation and mass errors.",
-    "Post-generation validation: Count `def test_*`, verify function closures, run `ast.parse()` on generated file before commit. Detects silent truncation and syntax errors."
+    "Avant toute génération de tests, exécuter un diagnostic d'importabilité du module cible. Cela économise du temps en détectant les problèmes d'environnement avant la génération complète.",
+    "Valider la complétude des fichiers générés avec trois vérifications : (1) tail -5 pour vérifier la dernière ligne, (2) python -m py_compile pour la syntaxe, (3) python -c 'import <module>' pour l'importabilité. Ces trois étapes prennent <5s et préviennent 90% des échecs d'exécution.",
+    "Pour les suites de test, utiliser le pattern : classes organisées par cas d'usage (Empty, Short, Long, EdgeCases), chacune avec 2-3 assertions ciblées. Ce pattern est réutilisable et maintenable."
   ]
 }

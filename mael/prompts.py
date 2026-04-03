@@ -11,34 +11,30 @@ Langue : français pour les explications, anglais pour le code."""
 
 PHASE_ACT = """Phase AGIR — Itération {iteration}
 
-## Tâche courante
-ID: {task_id}
-Titre: {task_title}
-Description: {task_description}
-Critères d'acceptation: {task_acceptance}
+## Tâche
+{task_title}: {task_description}
+Critères: {task_acceptance}
 
-## Contexte du projet
-{claude_md}
-
-## Learnings accumulés
+## Learnings critiques
 {learnings}
 
-## Instructions
-1. Analyse la tâche et ses critères d'acceptation
-2. Propose une implémentation CONCRÈTE (code Python complet, prêt à écrire dans un fichier)
-3. Structure ta réponse ainsi :
+## RÈGLES ABSOLUES
+- Le code doit être COMPLET. Pas de troncature. Pas de "..." ou de commentaires placeholder.
+- Chaque fonction doit avoir un corps EXÉCUTABLE.
+- Vérifie que tu as écrit TOUTES les lignes avant de terminer.
+- Préfère un code COURT et FONCTIONNEL à un code long et incomplet.
+- Maximum 1 fichier par réponse. Garde le code sous 150 lignes.
 
-### Analyse
-(brève analyse de la tâche)
-
-### Fichiers à créer/modifier
-Pour chaque fichier, donne le chemin et le contenu complet :
-```path: chemin/du/fichier.py
-contenu complet du fichier
+## Format de réponse
+1. Analyse (2-3 lignes max)
+2. UN seul bloc de code :
+```python path: chemin/du/fichier.py
+code complet ici
 ```
-
-### Commande de validation
-(une commande pour vérifier que ça marche, ex: python -m pytest tests/)
+3. Commande de validation :
+```bash
+python chemin/du/fichier.py
+```
 """
 
 

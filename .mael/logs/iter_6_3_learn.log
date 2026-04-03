@@ -1,44 +1,43 @@
 {
   "learnings": [
     {
-      "category": "gotcha",
-      "learning": "Les troncatures d'exécution se cachent souvent dans les docstrings ou les sorties partielles de tests. Implémenter une vérification stricte : chaque étape critique doit produire un marqueur de fin explicite (ex: '=== STEP_NAME COMPLETED ===') et vérifier que le fichier généré est complet via `wc -l` ou hash de contenu attendu.",
+      "category": "failure_analysis",
+      "learning": "ModuleNotFoundError lors de pytest indique un problème de PYTHONPATH ou de structure du projet, pas une erreur de test. Avant de régénérer des tests, exécuter: (1) 'python -c \"import sys; print(sys.path)\"' pour vérifier le chemin, (2) 'ls -la' pour confirmer la structure (tools/ doit être au même niveau que tests/), (3) 'python -m pytest --collect-only tests/' pour diagnostiquer l'import avant l'exécution.",
       "confidence": "haute",
-      "reusable_for": "Toute tâche impliquant génération de fichiers ou exécution de tests multi-étapes"
+      "reusable_for": "Tout test échouant avec ModuleNotFoundError dans un projet avec structure de répertoires"
     },
     {
-      "category": "failure_analysis",
-      "learning": "L'absence de validation intermédiaire entre création et test masque les défaillances. Ajouter une étape obligatoire post-création : (1) Vérifier le fichier existe et n'est pas vide, (2) Compiler/parser le code, (3) Importer le module, (4) Exécuter une fonction simple, (5) Exécuter les cas limites. Chaque étape doit être loggée avec succès/échec explicite.",
+      "category": "gotcha",
+      "learning": "Un fichier test tronqué (dernière méthode incomplète) peut coexister avec un nouveau fichier généré. Avant de générer tests/test_summarize.py, exécuter: 'rm -f tests/test_summarize.py' ou 'git status tests/' pour détecter les fichiers partiels. Vérifier 'tail -5 tests/test_summarize.py' après génération pour confirmer que le fichier se termine par une ligne complète (pas de 'def test_' orphelin).",
       "confidence": "haute",
-      "reusable_for": "Création de modules Python, utilitaires, ou outils nécessitant validation progressive"
+      "reusable_for": "Prévention des fichiers tronqués lors de régénération de tests"
     },
     {
       "category": "optimization",
-      "learning": "Consulter et appliquer les learnings existants AVANT de commencer la phase AGIR. Créer une étape tracée : (1) Lister les learnings pertinents, (2) Mapper chacun à une action concrète dans la checklist, (3) Ajouter une ligne 'Learning X appliqué : [description]' dans la soumission. Cela évite les répétitions de patterns d'erreur.",
+      "learning": "Ajouter une étape de validation post-génération obligatoire: (1) 'python -m py_compile tests/test_summarize.py' pour valider la syntaxe, (2) 'pytest tests/test_summarize.py --collect-only -q' pour vérifier que N tests sont collectés (N > 0), (3) 'pytest tests/test_summarize.py -v --tb=line' avec timeout 10s. Si collecte = 0 ou import échoue, arrêter et diagnostiquer AVANT itération suivante.",
       "confidence": "haute",
-      "reusable_for": "Toute itération utilisant des learnings antérieurs"
+      "reusable_for": "Validation rapide de tout fichier test généré avant acceptation"
     },
     {
       "category": "success_pattern",
-      "learning": "Tester les composants critiques isolément avant intégration. Pour un résumé de texte : (1) Tester split_sentences() sur 5 cas (vide, une phrase, ponctuation mixte, etc.), (2) Tester score_sentence() sur phrases isolées, (3) Tester summarize() sur textes complets. Chaque test doit afficher input → output complet, pas juste 'OK'.",
+      "learning": "La structure logique des tests (classes TestSummarize, TestSplitSentences avec docstrings et assertions) était correcte. Le problème était technique (import + fichier tronqué). Réutiliser la même structure de génération mais ajouter la validation post-génération. Ne pas modifier la logique des tests, corriger l'environnement d'exécution.",
       "confidence": "haute",
-      "reusable_for": "Développement de fonctions composées ou pipelines de traitement"
+      "reusable_for": "Itérations futures sur test_summarize.py ou tests similaires"
     },
     {
-      "category": "gotcha",
-      "learning": "Les sorties tronquées au milieu d'une chaîne (ex: 'This is a shor') indiquent souvent un dépassement de limite de tokens ou une exception non capturée. Ajouter un try-except global avec logging du traceback complet, et limiter les outputs de test à des tailles prévisibles (max 500 chars par test).",
+      "category": "optimization",
+      "learning": "Avant de générer un nouveau fichier test, exécuter: 'git diff tests/test_summarize.py' ou 'git status tests/' pour voir si le fichier existe et son état. Si le fichier est partiellement commité ou tronqué, faire 'git checkout tests/test_summarize.py' ou 'rm tests/test_summarize.py' pour repartir de zéro.",
       "confidence": "haute",
-      "reusable_for": "Débogage de troncatures mystérieuses dans les exécutions"
+      "reusable_for": "Gestion des fichiers test dans un dépôt Git"
     }
   ],
   "patterns_seen_again": [
-    "L'exécution partielle de tests (TEST 1-3 complets, TEST 4 coupé en plein texte) crée une fausse confiance. Implémenter une vérification stricte : tous les tests doivent produire une sortie COMPLÈTE et TERMINÉE, pas juste 'partiellement exécutés'.",
-    "La consultation des learnings existants (itérations 1-4) n'a pas été appliquée avant l'itération 5. Créer une étape OBLIGATOIRE et tracée : (1) Lire les learnings pertinents, (2) Lister explicitement lesquels s'appliquent à la tâche actuelle, (3) Intégrer chacun dans la checklist pré-soumission.",
-    "La checklist pré-soumission doit être multi-niveaux et strictement ordonnée : (1) Syntaxe, (2) Import, (3) Exécution simple, (4) Exécution complète, (5) Vérification de non-troncature."
+    "Un fichier test tronqué (dernière méthode incomplète : 'def test_split_empty_string(self): \"\"\"Test s') dans le même répertoire peut être silencieusement ignoré par pytest lors de la collecte, masquant le vrai problème. Toujours vérifier 'tail -20 test_*.py' après génération.",
+    "Avant de régénérer un fichier test complet après un échec, exécuter : (1) 'ls -la tests/' pour lister les fichiers, (2) 'wc -l test_*.py' pour détecter les fichiers tronqués, (3) 'python -m py_compile test_*.py' pour valider la syntaxe. Supprimer ou corriger les fichiers cassés AVANT nouvelle génération.",
+    "Après génération, exécuter immédiatement 'pytest tests/test_*.py -v --tb=short' avec un timeout court (5s). Si 'collected 0 items', arrêter et diagnostiquer avant itération suivante. Ne pas ajouter plus de tests tant que la collecte échoue."
   ],
   "promote_to_claude_md": [
-    "Implémenter une vérification stricte de complétude : chaque étape critique doit produire un marqueur de fin explicite et vérifier que les fichiers générés sont complets via wc -l ou hash de contenu.",
-    "Ajouter une étape obligatoire post-création : (1) Vérifier fichier existe, (2) Compiler/parser, (3) Importer, (4) Exécuter simple, (5) Exécuter limites. Chaque étape loggée avec succès/échec explicite.",
-    "Consulter et appliquer les learnings existants AVANT phase AGIR. Mapper chacun à une action concrète et tracer l'application dans la soumission."
+    "ModuleNotFoundError lors de pytest indique un problème de PYTHONPATH ou de structure du projet. Diagnostic: (1) vérifier sys.path, (2) confirmer structure (tools/ au même niveau que tests/), (3) exécuter 'python -m pytest --collect-only' avant l'exécution.",
+    "Validation post-génération obligatoire pour tout fichier test: (1) py_compile pour syntaxe, (2) pytest --collect-only pour vérifier N > 0 tests collectés, (3) pytest -v avec timeout. Arrêter si collecte échoue."
   ]
 }

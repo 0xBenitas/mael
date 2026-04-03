@@ -2,43 +2,42 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "Les troncatures de sortie mid-word (ex: 'Machine learn' au lieu d'un résumé complet) indiquent une erreur d'écriture fichier ou une exception silencieuse. Ajouter une validation post-écriture : (1) Vérifier que le fichier n'est pas vide, (2) Lire et afficher les 100 premiers et 100 derniers caractères, (3) Valider que les fonctions critiques sont complètes (chercher 'return' dans chaque fonction).",
+      "learning": "Les tests bien structurés (classes, docstrings, assertions) ne suffisent pas si le module importé n'existe pas ou n'est pas accessible. Avant de générer des tests, vérifier que le module cible existe: 'python -c \"import tools.summarize; print(tools.summarize.__file__)\"'. Si import échoue, diagnostiquer et corriger le module AVANT d'écrire les tests.",
       "confidence": "haute",
-      "reusable_for": "Tout développement de fichier Python complexe; détection précoce de corruptions d'écriture"
-    },
-    {
-      "category": "success_pattern",
-      "learning": "Tester chaque composant isolément AVANT intégration, avec affichage complet input→output. Pour summarize.py : (1) split_sentences() sur 5 cas (vide, 1 phrase, ponctuation mixte, nombres, guillemets), (2) score_sentence() sur 3 phrases isolées avec scores attendus, (3) summarize() sur 2 textes courts (< 200 chars) avec output complet visible. Chaque test doit logguer le type et la longueur de l'input.",
-      "confidence": "haute",
-      "reusable_for": "Validation de modules avec dépendances internes; détection de bugs d'intégration"
+      "reusable_for": "Toute génération de tests pour un module existant; évite les faux négatifs dus à des imports cassés"
     },
     {
       "category": "gotcha",
-      "learning": "Les cas limites (texte vide, une phrase, très long texte) doivent être testés EXPLICITEMENT et loggués. Ajouter une étape 'Edge cases validation' : (1) Texte vide → résumé vide, (2) Une phrase → résumé = phrase, (3) Texte > 1000 chars → résumé < 50% original. Chaque cas doit afficher assertion + résultat réel.",
+      "learning": "Une race condition peut survenir si un fichier test est supprimé (rm) juste avant la compilation/validation. Le fichier peut être en cours d'écriture ou partiellement supprimé. Solution: utiliser 'git clean -fd tests/' ou 'git checkout tests/' pour nettoyer de manière atomique, plutôt que 'rm -f' suivi d'une génération.",
       "confidence": "haute",
-      "reusable_for": "Validation de fonctions de traitement de texte; prévention de comportements imprévisibles"
+      "reusable_for": "Nettoyage de fichiers générés avant régénération; évite les états intermédiaires instables"
     },
     {
       "category": "optimization",
-      "learning": "Appliquer les learnings existants AVANT AGIR : créer une checklist tracée qui mappe chaque learning à une action. Exemple : 'Learning validation_intermédiaire appliqué : 5 étapes de validation post-création exécutées et loggées'. Cela force la réutilisation et crée une trace d'audit.",
+      "learning": "Les assertions faibles ('assert len(result) >= 1') masquent les bugs. Remplacer par des assertions spécifiques: vérifier le contenu exact, la structure, les cas limites (texte très long, max_sentences=1, caractères spéciaux). Générer des tests avec assertions fortes dès le départ plutôt que de les renforcer après.",
       "confidence": "haute",
-      "reusable_for": "Toute itération APPRENDRE; amélioration continue systématique"
+      "reusable_for": "Écriture de tous les tests; améliore la détection de bugs et la couverture réelle"
     },
     {
-      "category": "failure_analysis",
-      "learning": "Les logs incomplets (étapes 4-5 manquantes) indiquent une troncature de sortie ou un crash non capturé. Ajouter un wrapper try-except global autour de chaque étape de validation avec logging du traceback complet. Limiter chaque log à 1000 chars max pour éviter les dépassements de tokens.",
+      "category": "optimization",
+      "learning": "Après génération d'un fichier test, exécuter une validation en trois étapes: (1) 'python -m py_compile' pour syntaxe, (2) 'pytest --collect-only -q' pour vérifier N > 0 tests collectés, (3) 'pytest -v --tb=line' avec timeout. Si l'une échoue, arrêter et diagnostiquer AVANT de continuer. Cela détecte les imports cassés et les fichiers tronqués immédiatement.",
       "confidence": "haute",
-      "reusable_for": "Validation multi-étapes; diagnostic de défaillances silencieuses"
+      "reusable_for": "Validation post-génération de tout fichier test; évite de passer à l'itération suivante avec des tests non exécutables"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "La structure logique des tests (classes par fonctionnalité, docstrings claires, assertions organisées) était correcte. Le problème était environnemental (import + fichier tronqué). Réutiliser la même structure de génération mais ajouter la validation post-génération obligatoire. Ne pas modifier la logique, corriger l'exécution.",
+      "confidence": "haute",
+      "reusable_for": "Itérations futures sur les tests; confirme que la structure était bonne, seule l'exécution était cassée"
     }
   ],
   "patterns_seen_again": [
-    "L'absence de validation intermédiaire entre création et test masque les défaillances. Ajouter une étape obligatoire post-création : (1) Vérifier le fichier existe et n'est pas vide, (2) Compiler/parser le code, (3) Importer le module, (4) Exécuter une fonction simple, (5) Exécuter les cas limites. Chaque étape doit être loggée avec succès/échec explicite.",
-    "Tester les composants critiques isolément avant intégration. Pour un résumé de texte : (1) Tester split_sentences() sur 5 cas (vide, une phrase, ponctuation mixte, etc.), (2) Tester score_sentence() sur phrases isolées, (3) Tester summarize() sur textes complets. Chaque test doit afficher input → output complet, pas juste 'OK'.",
-    "Les sorties tronquées au milieu d'une chaîne (ex: 'This is a shor') indiquent souvent un dépassement de limite de tokens ou une exception non capturée. Ajouter un try-except global avec logging du traceback complet, et limiter les outputs de test à des tailles prévisibles (max 500 chars par test)."
+    "Un fichier test tronqué (dernière méthode incomplète) peut coexister avec un nouveau fichier généré. Avant de générer tests/test_summarize.py, exécuter: 'rm -f tests/test_summarize.py' ou 'git status tests/' pour détecter les fichiers partiels.",
+    "Ajouter une étape de validation post-génération obligatoire: (1) 'python -m py_compile tests/test_summarize.py' pour valider la syntaxe, (2) 'pytest tests/test_summarize.py --collect-only -q' pour vérifier que N tests sont collectés (N > 0), (3) 'pytest tests/test_summarize.py -v --tb=line' avec timeout 10s."
   ],
   "promote_to_claude_md": [
-    "Validation intermédiaire obligatoire post-création : 5 étapes (fichier existe, syntaxe valide, import réussit, fonction simple exécute, cas limites testés). Chaque étape loggée explicitement.",
-    "Composants isolés d'abord : tester split_sentences(), score_sentence(), summarize() séparément avec input→output complet avant intégration.",
-    "Gestion des cas limites explicite : texte vide, une phrase, très long texte. Chaque cas doit afficher assertion + résultat réel."
+    "Validation post-génération en trois étapes (py_compile + collect-only + pytest -v) est obligatoire pour tout fichier test généré. Arrêter et diagnostiquer si l'une échoue.",
+    "Vérifier que le module cible existe et est importable AVANT de générer ses tests: 'python -c \"import tools.summarize\"'",
+    "Assertions fortes (vérifier contenu exact, structure, cas limites) plutôt que faibles (len >= 1). Générer avec assertions fortes dès le départ."
   ]
 }

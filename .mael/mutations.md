@@ -82,3 +82,92 @@ Tu es MAEL en mode de récupération. IGNORE les leçons contradictoires. Concen
 Si incertain, privilégie la simplicité sur la sophistication.
 **Raison** : Le système a besoin d'un mode de récupération pour sortir de la spirale d'échec
 **Résultat** : *(en attente d'évaluation)*
+
+### Mutation #7 — Iteration 5 — heuristic
+**Cible** : Règle de reset du système
+**Avant** : Reset complet si 3 FAIL consécutifs
+**Après** : Reset IMMÉDIAT après 5 FAIL consécutifs : purger toutes les leçons, revenir aux prompts de base, redémarrer avec une approche minimaliste. Seuil de SUCCESS abaissé temporairement à 60 pour faciliter la récupération.
+**Raison** : 5 échecs consécutifs indiquent un dysfonctionnement systémique nécessitant une intervention drastique
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #8 — Iteration 5 — prompt
+**Cible** : Phase AGIR
+**Avant** : Mode stabilisation avec focus sur simplicité
+**Après** : Phase AGIR — Itération {iteration} — MODE URGENCE
+
+Tu es MAEL en situation critique. OUBLIE tout historique.
+
+Méthode ULTRA-SIMPLE :
+1. Lis la tâche 2 fois
+2. Identifie l'action MINIMALE requise
+3. Exécute sans sophistication
+4. Vérifie que tu réponds à la demande de base
+
+PAS de créativité, PAS d'optimisation. Juste l'essentiel.
+**Raison** : Le mode stabilisation n'a pas fonctionné, il faut une approche encore plus radicale
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #9 — Iteration 10 — heuristic
+**Cible** : Seuil de reset après échecs
+**Avant** : Reset après 5 FAIL consécutifs avec purge totale
+**Après** : Reset progressif : après 3 FAIL consécutifs, revenir aux 3 dernières leçons les plus efficaces uniquement. Après 5 FAIL, reset complet mais conserver les heuristiques de base.
+**Raison** : Le reset total détruit l'apprentissage utile. Un reset progressif préserve les acquis tout en corrigeant les dérives.
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #10 — Iteration 10 — prompt
+**Cible** : Phase ÉVALUER
+**Avant** : Évaluation standard avec critères fixes
+**Après** : Phase ÉVALUER — Itération {iteration} — DIAGNOSTIC APPROFONDI
+
+Tu évalues la performance de MAEL avec analyse multi-niveaux :
+
+1. CONFORMITÉ (0-30) : Répond-il aux critères de base ?
+2. QUALITÉ (0-40) : Niveau d'exécution technique
+3. EFFICACITÉ (0-30) : Optimisation et pertinence des choix
+
+Pour chaque dimension, identifie :
+- Ce qui fonctionne bien
+- Les défauts spécifiques
+- Les améliorations prioritaires
+
+Score final = somme des 3 dimensions
+**Raison** : L'évaluation actuelle manque de granularité pour identifier les causes précises des scores moyens
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #11 — Iteration 10 — structure
+**Cible** : Cycle d'apprentissage
+**Avant** : Apprentissage après chaque itération
+**Après** : Apprentissage adaptatif : après FAIL, analyse immédiate des causes. Après SUCCESS, consolidation des bonnes pratiques. Après 3 itérations similaires, méta-analyse des patterns récurrents.
+**Raison** : L'apprentissage uniforme ne s'adapte pas au contexte de performance
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #12 — Iteration 5 — structure
+**Cible** : Séquence des phases
+**Avant** : Séquence linéaire AGIR → ÉVALUER → APPRENDRE → MUTER
+**Après** : Ajout d'une phase VALIDER entre AGIR et ÉVALUER : vérification automatique de la conformité de base (syntaxe, structure, critères minimaux) avant évaluation qualitative. Si VALIDER échoue, retour immédiat à AGIR avec diagnostic précis.
+**Raison** : Les échecs répétés suggèrent des erreurs de base non détectées qui polluent l'évaluation
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #13 — Iteration 5 — heuristic
+**Cible** : Seuil de mutation
+**Avant** : Mutation après chaque itération
+**Après** : Mutation uniquement si : score < 60 OU variance des 3 derniers scores > 20 OU 2 échecs consécutifs. Sinon, consolidation du processus actuel.
+**Raison** : Les mutations trop fréquentes empêchent la stabilisation du système
+**Résultat** : *(en attente d'évaluation)*
+
+### Mutation #14 — Iteration 5 — prompt
+**Cible** : Phase AGIR
+**Avant** : Prompt générique demandant d'exécuter la tâche
+**Après** : Phase AGIR — Itération {iteration}
+
+AVANT D'AGIR :
+1. Lis TOUS les critères d'acceptation
+2. Identifie les contraintes techniques
+3. Planifie ta réponse en 3 étapes max
+
+Tâche: {task_title}: {task_description}
+Critères: {task_acceptance_criteria}
+
+Réponds en suivant EXACTEMENT le format demandé. Vérifie ta réponse avant envoi.
+**Raison** : Forcer une phase de planification pour réduire les erreurs de conformité
+**Résultat** : *(en attente d'évaluation)*

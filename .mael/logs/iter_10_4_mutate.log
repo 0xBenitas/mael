@@ -1,24 +1,33 @@
 {
-  "analysis": "Chute dramatique des performances (85→41→20). Les mutations récentes ont déstabilisé le système. La mutation #4 sur l'heuristique d'apprentissage semble avoir créé une boucle de rétroaction négative où les échecs récents polluent l'apprentissage. Le système s'auto-sabote.",
-  "health": "critical",
+  "analysis": "Le système montre une stagnation après amélioration initiale. Scores bloqués entre 43-45, indiquant que les mutations drastiques (reset, mode urgence) n'ont pas eu l'effet escompté. Le processus semble avoir atteint un plateau de performance sous-optimal. Les mutations précédentes étaient trop radicales et ont peut-être supprimé des éléments utiles.",
+  "health": "degrading",
   "mutations": [
     {
       "type": "heuristic",
-      "target": "Règle d'apprentissage",
-      "before_summary": "Pondération complexe par score + tendance + cohérence, ignorant les leçons <40 points",
-      "after": "Apprentissage simple: garder uniquement les leçons des 3 dernières itérations SUCCESS (score ≥80). Si aucune SUCCESS récente, utiliser la dernière leçon PARTIAL (score ≥50). Reset complet si 3 FAIL consécutifs.",
-      "reason": "La pondération complexe crée une spirale négative. Retour à un apprentissage simple et stable.",
-      "expected_impact": "Stabilisation immédiate, arrêt de la dégradation",
-      "confidence": 0.9
+      "target": "Seuil de reset après échecs",
+      "before_summary": "Reset après 5 FAIL consécutifs avec purge totale",
+      "after": "Reset progressif : après 3 FAIL consécutifs, revenir aux 3 dernières leçons les plus efficaces uniquement. Après 5 FAIL, reset complet mais conserver les heuristiques de base.",
+      "reason": "Le reset total détruit l'apprentissage utile. Un reset progressif préserve les acquis tout en corrigeant les dérives.",
+      "expected_impact": "Éviter la perte totale de connaissances utiles lors des corrections",
+      "confidence": 0.8
     },
     {
       "type": "prompt",
-      "target": "Phase AGIR",
-      "before_summary": "Prompt standard sans garde-fou contre l'instabilité",
-      "after": "Phase AGIR — Itération {iteration} — Mode STABILISATION\n\nTu es MAEL en mode de récupération. IGNORE les leçons contradictoires. Concentre-toi sur:\n1. Comprendre précisément la tâche\n2. Appliquer une solution simple et directe\n3. Vérifier ta logique avant de répondre\n\nSi incertain, privilégie la simplicité sur la sophistication.",
-      "reason": "Le système a besoin d'un mode de récupération pour sortir de la spirale d'échec",
-      "expected_impact": "Retour à des solutions fonctionnelles de base",
-      "confidence": 0.8
+      "target": "Phase ÉVALUER",
+      "before_summary": "Évaluation standard avec critères fixes",
+      "after": "Phase ÉVALUER — Itération {iteration} — DIAGNOSTIC APPROFONDI\n\nTu évalues la performance de MAEL avec analyse multi-niveaux :\n\n1. CONFORMITÉ (0-30) : Répond-il aux critères de base ?\n2. QUALITÉ (0-40) : Niveau d'exécution technique\n3. EFFICACITÉ (0-30) : Optimisation et pertinence des choix\n\nPour chaque dimension, identifie :\n- Ce qui fonctionne bien\n- Les défauts spécifiques\n- Les améliorations prioritaires\n\nScore final = somme des 3 dimensions",
+      "reason": "L'évaluation actuelle manque de granularité pour identifier les causes précises des scores moyens",
+      "expected_impact": "Diagnostic plus précis permettant des corrections ciblées",
+      "confidence": 0.7
+    },
+    {
+      "type": "structure",
+      "target": "Cycle d'apprentissage",
+      "before_summary": "Apprentissage après chaque itération",
+      "after": "Apprentissage adaptatif : après FAIL, analyse immédiate des causes. Après SUCCESS, consolidation des bonnes pratiques. Après 3 itérations similaires, méta-analyse des patterns récurrents.",
+      "reason": "L'apprentissage uniforme ne s'adapte pas au contexte de performance",
+      "expected_impact": "Apprentissage plus ciblé et efficace selon les situations",
+      "confidence": 0.6
     }
   ]
 }

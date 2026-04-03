@@ -2,41 +2,43 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "Une fonction tronquée au milieu de sa logique (ex: 'if not s' sans suite) crée une syntaxe invalide qui échoue silencieusement à l'import. Toujours valider la syntaxe Python avec `python -m py_compile` avant de considérer le code complet.",
+      "learning": "Une fonction incomplète (qui s'arrête sans return) passe la compilation mais casse l'exécution. Toujours valider que chaque fonction a un chemin de retour explicite pour tous les cas, et exécuter le code avant de le committer. Utiliser un linter (pylint, flake8) configuré pour détecter les fonctions sans return.",
       "confidence": "haute",
-      "reusable_for": "Validation de code avant exécution, détection d'implémentations partielles"
+      "reusable_for": "Validation de code avant commit, prévention de runtime errors silencieuses"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Quand on modifie un module existant, extraire d'abord l'interface attendue (imports, signatures) via ast.parse() ou grep, puis générer le code en respectant cette interface. Cela prévient les ImportError et les ruptures de contrats.",
+      "confidence": "haute",
+      "reusable_for": "Refactoring de modules, ajout de features sans casser les tests existants"
     },
     {
       "category": "gotcha",
-      "learning": "Une sortie tronquée dans stdout ('Machine learning is a...') est un signal d'alerte d'exécution défaillante. Vérifier systématiquement que la sortie complète est produite, pas juste que le programme s'exécute.",
+      "learning": "Les tests manuels affichés (print statements) ne valident rien. Remplacer par des assertions ou des tests unitaires avec des cas d'entrée/sortie connus. Un test manuel qui passe ne prouve pas que l'algorithme fonctionne.",
       "confidence": "haute",
-      "reusable_for": "Diagnostic de défaillances silencieuses, validation de résultats complets"
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Déclarer une fonction avec docstring et type hints mais sans implémentation complète crée une fausse impression de complétude. Exiger que chaque fonction ait un corps exécutable (pas juste `pass` ou code tronqué) avant validation.",
-      "confidence": "haute",
-      "reusable_for": "Code review, critères d'acceptation, validation de tâches"
+      "reusable_for": "Validation d'algorithmes, scoring, et transformations de données"
     },
     {
       "category": "optimization",
-      "learning": "Les critères d'acceptation doivent inclure explicitement : (1) Syntaxe valide vérifiée, (2) Import sans erreur, (3) Exécution complète sans troncature, (4) Gestion d'erreurs pour cas limites. Un score de 55/100 avec code cassé indique que ces critères n'étaient pas appliqués.",
+      "learning": "Avant d'implémenter un scoring TF-IDF, définir explicitement : (1) la langue du corpus, (2) la liste de stop words à utiliser, (3) les cas limites (texte vide, 1 phrase, très court), (4) le test de régression (baseline vs nouvelle implémentation). Cela force la clarté et prévient les implémentations incomplètes.",
       "confidence": "haute",
-      "reusable_for": "Définition de critères d'acceptation, scoring de tâches"
+      "reusable_for": "Implémentation d'algorithmes NLP, scoring, et améliorations de qualité"
     },
     {
-      "category": "failure_analysis",
-      "learning": "L'itération 2 a répété l'erreur de l'itération 1 (implémentation incomplète) malgré les learnings documentés. Cela indique que les learnings n'ont pas été appliqués activement. Implémenter une checklist pré-exécution basée sur les learnings précédents.",
+      "category": "gotcha",
+      "learning": "Un code 'bien pensé' (ex: stop words français) mais incomplet (logique TF-IDF non finalisée) est pire qu'un code simple qui marche. Prioriser la complétude et l'exécutabilité avant la sophistication.",
       "confidence": "haute",
-      "reusable_for": "Amélioration du processus itératif, application des learnings"
+      "reusable_for": "Gestion de la scope et des priorités dans le développement itératif"
     }
   ],
   "patterns_seen_again": [
-    "Les fonctions déclarées mais non implémentées (corps vide) passent la validation syntaxique mais causent des défaillances silencieuses à l'exécution. Toujours vérifier que chaque fonction a un corps complet avant de considérer la tâche terminée.",
-    "Une sortie tronquée dans les tests stdout ('Machine learni...') indique une exécution défaillante non diagnostiquée. Toujours exécuter le code complet et vérifier que la sortie n'est pas coupée avant de valider."
+    "Une interface attendue (signatures de fonctions importées par les tests) doit être extraite AVANT la génération. Utiliser grep/ast pour lister exactement ce qui est importé, puis générer les fonctions avec les bons noms, visibilité et signatures. Cela prévient les ruptures import/export.",
+    "Les cas limites (texte vide, une seule phrase, texte très court) ne sont pas testés par défaut. Ajouter des tests explicites pour ces cas avant de finaliser. Cela prévient les crashes en production et force à définir le comportement attendu.",
+    "Ajouter des tests spécifiques pour chaque amélioration algorithmique (ex: test_tfidf_scoring_vs_baseline) avant de déclarer une tâche complète. Cela valide que l'amélioration produit effectivement un résultat mesurable (résumé plus pertinent, score plus élevé) et pas seulement du code qui compile."
   ],
   "promote_to_claude_md": [
-    "Syntaxe valide ≠ implémentation complète. Valider avec `python -m py_compile` ET exécution réelle avant acceptation.",
-    "Checklist pré-exécution obligatoire : (1) Pas de code tronqué, (2) Import réussit, (3) Sortie complète (pas de troncature), (4) Gestion d'erreurs pour cas limites."
+    "Extraire l'interface attendue (imports, signatures) via ast.parse() avant de générer du code qui modifie un module existant. Cela prévient les ImportError et les ruptures de contrats.",
+    "Remplacer les tests manuels (print statements) par des assertions ou des tests unitaires avec des cas d'entrée/sortie connus. Un test manuel qui passe ne prouve pas que l'algorithme fonctionne.",
+    "Avant d'implémenter un algorithme (TF-IDF, scoring, etc.), définir explicitement : langue, ressources linguistiques, cas limites, et test de régression. Cela force la clarté et prévient les implémentations incomplètes."
   ]
 }

@@ -110,8 +110,8 @@ def phase_act(state: dict, task: dict, iteration: int,
     if dry_run:
         response = _mock_act_response(task)
     else:
-        from .llm import ask, FAST
-        response = ask(prompt, system=SYSTEM_MAEL, model=FAST, max_tokens=4096)
+        from .llm import ask, SMART
+        response = ask(prompt, system=SYSTEM_MAEL, model=SMART, max_tokens=8192)
 
     # Execute: parse code blocks, write files, run commands
     from .executor import execute_response

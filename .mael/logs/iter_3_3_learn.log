@@ -2,44 +2,44 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "Une docstring tronquée (s'arrêtant au milieu d'une phrase comme 'Raises: ValueError: If max_sentences is less than') est un indicateur fiable que le fichier a été écrit partiellement ou corrompu. Toujours vérifier que les docstrings sont complètes avant de considérer une implémentation valide.",
+      "learning": "Un fichier tronqué au milieu d'une fonction (ex: 'sentence.low' inachevée) passe la validation syntaxique du parser mais casse l'exécution. Toujours exécuter le code complet après écriture avant de committer. Ajouter une étape de validation : importer le module, appeler chaque fonction exportée avec un cas trivial, vérifier qu'aucune exception n'est levée.",
       "confidence": "haute",
-      "reusable_for": "Validation de complétude de code avant exécution; détection précoce de fichiers incomplets"
+      "reusable_for": "Toute modification de code Python existant; prévention des regressions silencieuses"
     },
     {
       "category": "gotcha",
-      "learning": "Une fonction avec signature, docstring et type hints mais sans corps exécutable (ou avec corps tronqué) passe les vérifications syntaxiques basiques mais échoue à l'exécution. Exiger une exécution réelle avec données de test, pas juste une vérification d'import.",
+      "learning": "Extraire l'interface attendue d'un module AVANT de le modifier : lister les imports, signatures de fonction, et valeurs de retour via grep ou ast.parse(). Générer le code en respectant strictement cette interface. Cela prévient les ImportError et les ruptures de contrats qui cassent les tests.",
       "confidence": "haute",
-      "reusable_for": "Critères d'acceptation pour toute fonction; validation d'exécution end-to-end"
+      "reusable_for": "Modification de modules existants avec tests dépendants; refactoring"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Un code 'conceptuellement bon' (ex: stop words français, Counter, scoring par phrase) mais incomplet (logique non finalisée, pas de return) est pire qu'un code simple qui marche. Prioriser la complétude et l'exécutabilité avant la sophistication. Découper la tâche en étapes : (1) interface, (2) cas trivial, (3) cas complexe.",
+      "confidence": "haute",
+      "reusable_for": "Gestion de la complexité; priorisation des tâches de développement"
     },
     {
       "category": "optimization",
-      "learning": "Créer une checklist pré-soumission basée sur les learnings des itérations précédentes : (1) Syntaxe valide, (2) Import sans erreur, (3) Exécution complète avec données réelles, (4) Sortie non-tronquée, (5) Gestion d'erreurs pour cas limites. Appliquer cette checklist avant chaque soumission.",
+      "learning": "Avant d'implémenter un algorithme (ex: TF-IDF), définir explicitement par écrit : (1) langue du corpus, (2) ressources (stop words, tokenizer), (3) cas limites (texte vide, 1 phrase, très court), (4) test de régression (baseline vs nouvelle implémentation). Valider cette spécification avec un test unitaire avant d'écrire la logique métier.",
       "confidence": "haute",
-      "reusable_for": "Processus itératif; prévention de répétition d'erreurs connues"
+      "reusable_for": "Implémentation d'algorithmes; prévention des implémentations incomplètes"
     },
     {
       "category": "failure_analysis",
-      "learning": "L'itération 3 a répété l'erreur des itérations 1 et 2 (implémentation incomplète) malgré 4 learnings documentés. Cela indique un défaut systémique : les learnings existent mais ne sont pas appliqués activement. Implémenter une étape de révision explicite qui consulte les learnings avant de coder.",
+      "learning": "Les tests manuels (print statements) ne valident rien. Remplacer par des assertions ou des tests unitaires avec des cas d'entrée/sortie connus et vérifiables. Un test manuel qui passe ne prouve pas que l'algorithme fonctionne; il prouve juste que le code s'exécute sans erreur.",
       "confidence": "haute",
-      "reusable_for": "Amélioration du processus d'apprentissage; boucle de feedback"
-    },
-    {
-      "category": "gotcha",
-      "learning": "Une sortie tronquée ('It enables system' au lieu d'une phrase complète) combinée à une docstring tronquée est un signal composite très fort d'implémentation cassée. Ne pas ignorer les signaux multiples convergents.",
-      "confidence": "haute",
-      "reusable_for": "Diagnostic d'erreurs; triangulation de problèmes"
+      "reusable_for": "Validation de code; mise en place de suites de tests"
     }
   ],
   "patterns_seen_again": [
-    "Une fonction tronquée au milieu de sa logique crée une syntaxe invalide qui échoue silencieusement à l'import.",
-    "Une sortie tronquée dans stdout est un signal d'alerte d'exécution défaillante.",
-    "Déclarer une fonction avec docstring et type hints mais sans implémentation complète crée une fausse impression de complétude.",
-    "Les critères d'acceptation doivent inclure explicitement : (1) Syntaxe valide vérifiée, (2) Import sans erreur, (3) Exécution complète sans troncature, (4) Gestion d'erreurs pour cas limites.",
-    "L'itération 2 a répété l'erreur de l'itération 1 malgré les learnings documentés, indiquant que les learnings n'ont pas été appliqués activement."
+    "Quand on modifie un module existant, extraire d'abord l'interface attendue (imports, signatures) via ast.parse() ou grep, puis générer le code en respectant cette interface. Cela prévient les ImportError et les ruptures de contrats.",
+    "Les tests manuels affichés (print statements) ne valident rien. Remplacer par des assertions ou des tests unitaires avec des cas d'entrée/sortie connus.",
+    "Un code 'bien pensé' (ex: stop words français) mais incomplet (logique TF-IDF non finalisée) est pire qu'un code simple qui marche. Prioriser la complétude et l'exécutabilité avant la sophistication.",
+    "Avant d'implémenter un scoring TF-IDF, définir explicitement : (1) la langue du corpus, (2) la liste de stop words à utiliser, (3) les cas limites (texte vide, 1 phrase, très court), (4) le test de régression (baseline vs nouvelle implémentation)."
   ],
   "promote_to_claude_md": [
-    "Créer une checklist pré-soumission basée sur les learnings des itérations précédentes : (1) Syntaxe valide, (2) Import sans erreur, (3) Exécution complète avec données réelles, (4) Sortie non-tronquée, (5) Gestion d'erreurs pour cas limites. Appliquer cette checklist avant chaque soumission.",
-    "L'itération 3 a répété l'erreur des itérations 1 et 2 malgré 4 learnings documentés. Implémenter une étape de révision explicite qui consulte les learnings avant de coder pour briser le cycle de répétition d'erreurs."
+    "Extraire l'interface attendue d'un module AVANT modification : lister imports, signatures, retours via grep/ast.parse(). Générer en respectant strictement cette interface pour prévenir ImportError et ruptures de contrats.",
+    "Prioriser complétude et exécutabilité avant sophistication. Un code simple qui marche > code conceptuellement bon mais incomplet. Découper en étapes : (1) interface, (2) cas trivial, (3) cas complexe.",
+    "Avant d'implémenter un algorithme, spécifier par écrit : langue, ressources, cas limites, test de régression. Valider avec test unitaire avant logique métier."
   ]
 }

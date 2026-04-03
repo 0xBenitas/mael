@@ -1,43 +1,43 @@
 {
   "learnings": [
     {
-      "category": "failure_analysis",
-      "learning": "Une fonction avec docstring complète mais corps tronqué (variable déclarée sans assignation, logique inachevée) passe la vérification syntaxique mais échoue à l'exécution. Diagnostic : vérifier que CHAQUE variable utilisée dans le corps a une assignation explicite AVANT sa première utilisation, pas seulement dans la docstring.",
+      "category": "gotcha",
+      "learning": "Un fichier Python tronqué (fonction incomplète) peut passer la validation manuelle mais échouer les tests. Avant soumission, vérifier la complétude syntaxique : (1) compter parenthèses/accolades ouvertes vs fermées, (2) vérifier que chaque fonction a un corps complet (pas de ligne 'word_freq = ...' sans suite), (3) exécuter 'python -m py_compile' pour détecter les erreurs de syntaxe.",
       "confidence": "haute",
-      "reusable_for": "Détection de troncatures masquées lors de révision de code avant soumission"
+      "reusable_for": "Toute génération de code multi-fonction où une fonction appelle d'autres. Détecte les troncatures avant soumission."
     },
     {
-      "category": "gotcha",
-      "learning": "L'exécution partielle de tests (TEST 1-3 complets, TEST 4 coupé en plein texte) crée une fausse confiance. Implémenter une vérification stricte : tous les tests doivent produire une sortie COMPLÈTE et TERMINÉE, pas juste 'partiellement exécutés'. Ajouter un marqueur de fin explicite (ex: '=== ALL TESTS COMPLETED ===') pour détecter les troncatures.",
+      "category": "failure_analysis",
+      "learning": "Un self-test rapporté comme 'OK' est non-fiable si le code généré est incomplet. Le test peut avoir été exécuté sur une version antérieure ou partielle. Toujours re-exécuter les tests APRÈS génération finale, et vérifier que tous les items collectés passent (ne pas se fier au nombre de items collectés seul).",
       "confidence": "haute",
-      "reusable_for": "Validation de sortie de test dans tout pipeline d'exécution"
+      "reusable_for": "Validation de code généré. Évite de soumettre du code 'testé' mais en réalité cassé."
     },
     {
       "category": "optimization",
-      "learning": "La consultation des learnings existants (itérations 1-4) n'a pas été appliquée avant l'itération 5. Créer une étape OBLIGATOIRE et tracée : (1) Lire les learnings pertinents, (2) Lister explicitement lesquels s'appliquent à la tâche actuelle, (3) Intégrer chacun dans la checklist pré-soumission. Cela aurait évité la répétition du pattern 'troncature masquée par docstring'.",
+      "learning": "Après génération d'une fonction principale complexe, ajouter une étape de vérification de dépendances : (1) lister toutes les fonctions appelées (split_sentences, score_sentence, get_word_frequencies, etc.), (2) vérifier que chacune est définie ET complète, (3) exécuter un test d'intégration minimal (ex: summarize(sample_text) retourne str non-vide et len > 0). Cela détecte les appels à des fonctions manquantes ou tronquées.",
       "confidence": "haute",
-      "reusable_for": "Amélioration du processus itératif global pour éviter les régressions"
+      "reusable_for": "Génération de code avec dépendances internes. Prévient les erreurs de runtime dues à des fonctions helper manquantes."
     },
     {
-      "category": "success_pattern",
-      "learning": "Isoler et tester le cœur métier (split phrases → scoring → extraction) comme fonctions séparées AVANT intégration dans la fonction principale. Cela permet de détecter les troncatures dans les sections critiques et de valider chaque étape indépendamment.",
+      "category": "failure_analysis",
+      "learning": "La rupture entre interface attendue (tests qui importent split_sentences, score_sentence) et implémentation (fonctions non exportées ou tronquées) bloque l'exécution. Avant de coder, extraire les signatures des tests existants (grep 'from tools.summarize import' ou 'import tools.summarize') et générer EXACTEMENT les fonctions attendues avec les bons noms et visibilité (public vs private).",
       "confidence": "haute",
-      "reusable_for": "Implémentation de fonctions complexes avec logique multi-étapes"
+      "reusable_for": "Intégration avec tests existants. Évite les incompatibilités d'interface."
     },
     {
       "category": "gotcha",
-      "learning": "La checklist pré-soumission doit être multi-niveaux et strictement ordonnée : (1) Syntaxe (python -m py_compile), (2) Import (import du module), (3) Exécution simple (appel basique), (4) Exécution complète (tous les cas limites), (5) Vérification de non-troncature (sortie complète, pas de variables non-assignées). Sauter une étape masque les erreurs.",
+      "learning": "Un rapport de test tronqué (pytest rapporte '44 items collectés' mais résultat coupé) masque les vrais résultats. Toujours vérifier que le rapport de test est complet : chercher la ligne 'passed/failed/error' finale. Si elle manque, le test n'a pas terminé correctement et le code est suspect.",
       "confidence": "haute",
-      "reusable_for": "Validation de code avant soumission dans tout contexte"
+      "reusable_for": "Validation de rapports de test. Détecte les tests incomplets ou interrompus."
     }
   ],
   "patterns_seen_again": [
-    "Une exécution partielle (tests 1-3 passent, test 4 coupé) combinée à une docstring complète mais un corps incomplet = signature valide masquant une implémentation cassée.",
-    "Les learnings des itérations 1-3 (checklist pré-soumission, exécution réelle, révision explicite) n'ont pas été appliqués à l'itération 4."
+    "Un code 'fonctionnellement correct' (validation manuelle OK) mais 'structurellement incomplet' (fichier tronqué) reçoit un score FAIL. La validation manuelle ne suffit pas : elle doit être complétée par (1) vérification de complétude syntaxique, (2) exécution des tests existants, (3) vérification que toutes les fonctions helper attendues sont présentes et exportées.",
+    "Après génération d'un algorithme complexe (TF-IDF), ajouter une étape de vérification : (1) lister toutes les fonctions appelées dans la fonction principale, (2) vérifier que chacune est définie et complète, (3) exécuter un test d'intégration simple (ex: summarize(sample_text) retourne str non-vide). Cela détecte les dépendances manquantes avant soumission."
   ],
   "promote_to_claude_md": [
-    "Checklist pré-soumission multi-niveaux : (1) Syntaxe, (2) Import, (3) Exécution simple, (4) Exécution complète avec tous les cas limites, (5) Vérification de non-troncature (variables assignées, sortie complète). Chaque niveau doit passer avant le suivant.",
-    "Isoler et tester le cœur métier (étapes critiques) comme fonctions séparées AVANT intégration pour détecter les troncatures et valider chaque étape indépendamment.",
-    "Consultation obligatoire et tracée des learnings existants AVANT de commencer le code : lister explicitement lesquels s'appliquent et les intégrer dans la checklist."
+    "Avant soumission de code Python multi-fonction, exécuter 'python -m py_compile' et vérifier que parenthèses/accolades sont équilibrées. Cela détecte les fichiers tronqués.",
+    "Extraire les signatures des tests existants (grep 'from module import') et générer EXACTEMENT les fonctions attendues avec les bons noms et visibilité avant de coder la logique.",
+    "Après génération, exécuter un test d'intégration minimal (ex: summarize(sample_text)) pour vérifier que toutes les dépendances internes sont présentes et complètes."
   ]
 }

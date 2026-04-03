@@ -1,50 +1,44 @@
 {
   "learnings": [
     {
-      "category": "success_pattern",
-      "learning": "Une architecture modulaire avec fonctions isolées (split_sentences, score_sentence, summarize) + suite de validation intégrée (5 étapes tracées) + tests pytest complets (34 tests) = score 85/100. Pattern : décomposer, valider chaque composant, puis intégrer avec logs explicites.",
+      "category": "failure_analysis",
+      "learning": "Les erreurs d'import (ImportError, INTERNALERROR) indiquent une désynchronisation entre la structure du projet et les chemins d'import dans les tests. Avant de générer des tests, valider la structure réelle du projet avec 'find . -name \"*.py\" -type f' et 'python -c \"import sys; print(sys.path)\"' pour garantir que les imports correspondent à la réalité.",
       "confidence": "haute",
-      "reusable_for": "Tout utilitaire de traitement de texte ou pipeline de données nécessitant robustesse et traçabilité"
+      "reusable_for": "Génération de tests pour tout module Python; validation d'intégration avant exécution"
     },
     {
       "category": "gotcha",
-      "learning": "Les cas limites testés explicitement (texte vide, 1 phrase, >1000 chars) avec assertions loggées préviennent les bugs en production. Ajouter systématiquement une étape 'Edge cases validation' AVANT de déclarer une tâche complète.",
+      "learning": "Les fichiers test tronqués (assertion coupée à 'assert len') peuvent résulter d'une interruption lors de l'écriture ou d'une limite de buffer. Toujours vérifier la complétude du fichier généré avec 'tail -5 <file>' et 'wc -l <file>' immédiatement après génération, avant validation.",
       "confidence": "haute",
-      "reusable_for": "Validation de toute fonction de traitement de données ou texte"
+      "reusable_for": "Génération de fichiers volumineux; détection de corruptions silencieuses"
     },
     {
       "category": "optimization",
-      "learning": "La heuristique de scoring basique (longueur + densité mots-clés) fonctionne mais TF-IDF améliorerait la qualité. Pour itérations futures : commencer simple, mesurer, puis sophistiquer. Documenter le seuil de complexité où l'amélioration justifie le coût.",
-      "confidence": "moyenne",
-      "reusable_for": "Décisions d'optimisation sur algorithmes de scoring ou ranking"
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Absence de gestion explicite des doublons de phrases dans le résumé = bug potentiel sur textes répétitifs. Ajouter une étape de déduplication post-sélection. Tester avec textes contenant phrases identiques ou très similaires.",
+      "learning": "La validation post-génération en trois étapes (syntaxe → collection → exécution) doit être obligatoire et atomique. Si une étape échoue, générer un rapport diagnostic détaillé (erreur exacte, ligne, contexte) AVANT de relancer la génération. Cela réduit les cycles d'itération.",
       "confidence": "haute",
-      "reusable_for": "Tout système de sélection/ranking de contenu (résumé, extraction, recommandation)"
-    },
-    {
-      "category": "optimization",
-      "learning": "Absence de benchmarks de performance sur textes volumineux (>10k chars) = risque de dégradation en production. Ajouter une étape de profiling : mesurer temps d'exécution et mémoire sur 3 tailles (100, 1000, 10000 chars).",
-      "confidence": "haute",
-      "reusable_for": "Validation de performance pour tout utilitaire destiné à traiter des données variables en taille"
+      "reusable_for": "Pipeline de génération de code; assurance qualité avant commit"
     },
     {
       "category": "success_pattern",
-      "learning": "Logs explicites avec type + longueur d'input pour chaque composant testé isolément = traçabilité complète. Pattern : logguer (1) input type/size, (2) processing step, (3) output type/size, (4) assertion result.",
+      "learning": "La structure logique des tests (classes par fonctionnalité, docstrings, assertions organisées) était correcte. Les problèmes étaient environnementaux (import + fichier tronqué). Séparer la validation de la logique : réutiliser la même structure de génération mais ajouter une étape de diagnostic d'environnement préalable.",
       "confidence": "haute",
-      "reusable_for": "Debugging et audit de tout pipeline de traitement"
+      "reusable_for": "Itérations futures sur les tests; refactoring sans changement logique"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Un score partiel (45/100) avec tests collectés mais non exécutables indique que la génération a réussi mais l'intégration a échoué. Distinguer clairement : (1) génération correcte, (2) intégration cassée. Cela permet de cibler le diagnostic (code vs environnement).",
+      "confidence": "haute",
+      "reusable_for": "Évaluation de la qualité; diagnostic rapide des causes racines"
     }
   ],
   "patterns_seen_again": [
-    "Tester chaque composant isolément AVANT intégration, avec affichage complet input→output",
-    "Les cas limites (texte vide, une phrase, très long texte) doivent être testés EXPLICITEMENT et loggués",
-    "Appliquer les learnings existants AVANT AGIR : créer une checklist tracée qui mappe chaque learning à une action"
+    "Une race condition peut survenir si un fichier test est supprimé (rm) juste avant la compilation/validation. Le fichier peut être en cours d'écriture ou partiellement supprimé. Solution: utiliser 'git clean -fd tests/' ou 'git checkout tests/' pour nettoyer de manière atomique, plutôt que 'rm -f' suivi d'une génération.",
+    "Les assertions faibles ('assert len(result) >= 1') masquent les bugs. Remplacer par des assertions spécifiques: vérifier le contenu exact, la structure, les cas limites (texte très long, max_sentences=1, caractères spéciaux). Générer des tests avec assertions fortes dès le départ plutôt que de les renforcer après.",
+    "Après génération d'un fichier test, exécuter une validation en trois étapes: (1) 'python -m py_compile' pour syntaxe, (2) 'pytest --collect-only -q' pour vérifier N > 0 tests collectés, (3) 'pytest -v --tb=line' avec timeout. Si l'une échoue, arrêter et diagnostiquer AVANT de continuer. Cela détecte les imports cassés et les fichiers tronqués immédiatement."
   ],
   "promote_to_claude_md": [
-    "Architecture modulaire + validation intégrée + tests complets = pattern de succès pour utilitaires robustes",
-    "Cas limites explicites + assertions loggées = prévention de bugs en production",
-    "Profiling de performance (temps + mémoire) sur 3 tailles d'input = validation obligatoire avant production"
+    "Valider la structure du projet et les chemins d'import avant de générer des tests : utiliser 'find' et 'python -c import' pour garantir la cohérence",
+    "Vérifier la complétude des fichiers générés immédiatement après écriture avec 'tail' et 'wc -l' pour détecter les troncatures",
+    "Implémenter une validation post-génération obligatoire en trois étapes (syntaxe → collection → exécution) avec diagnostic détaillé en cas d'échec"
   ]
 }

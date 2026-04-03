@@ -1,33 +1,33 @@
 {
-  "analysis": "Le processus MAEL montre une dégradation critique avec une chute de 40 points en une itération (70→30). Les scores oscillent sans progression claire, suggérant un manque de cohérence dans l'évaluation et l'apprentissage. Les prompts actuels sont trop génériques et ne capturent pas assez de contexte spécifique aux tâches.",
-  "health": "critical",
+  "analysis": "Le processus montre une instabilité chronique avec des scores oscillant entre échec et partiel (33-67). La tendance légèrement positive (+13) masque une variance élevée qui indique un manque de consistance. Les mutations précédentes (FONDI, évaluation multi-niveaux, apprentissage adaptatif) n'ont pas stabilisé les performances. Le système semble manquer de cohérence entre ses phases et de mécanismes de validation robustes.",
+  "health": "degrading",
   "mutations": [
     {
-      "type": "prompt",
-      "target": "ÉVALUER prompt",
-      "before_summary": "Évaluation générique sans contexte historique ni critères adaptatifs",
-      "after": "Phase ÉVALUER — Itération {iteration}\n\nTu évalues la solution de MAEL avec CONTEXTE HISTORIQUE.\n\n## Historique des 3 dernières itérations\n{recent_history}\n\n## Tâche évaluée\nID: {task_id}\nTitre: {task_title}\nCritères: {criteria}\n\n## Solution à évaluer\n{solution}\n\n## Instructions\n1. Compare avec les patterns de réussite/échec passés\n2. Évalue la cohérence avec l'apprentissage précédent\n3. Score sur 100 avec justification détaillée\n4. Identifie les points d'amélioration spécifiques\n\nRéponds en JSON: {\"score\": X, \"verdict\": \"SUCCESS|PARTIAL|FAIL\", \"reasoning\": \"...\", \"improvements\": [\"...\"], \"consistency_check\": \"...\"",
-      "reason": "L'évaluateur manque de contexte historique, causant des scores incohérents",
-      "expected_impact": "Stabilisation des scores et meilleure cohérence d'évaluation",
+      "type": "structure",
+      "target": "Séquence des phases",
+      "before_summary": "Séquence linéaire AGIR → ÉVALUER → APPRENDRE → MUTER",
+      "after": "Ajout d'une phase VALIDER entre AGIR et ÉVALUER : vérification automatique de la conformité de base (syntaxe, structure, critères minimaux) avant évaluation qualitative. Si VALIDER échoue, retour immédiat à AGIR avec diagnostic précis.",
+      "reason": "Les échecs répétés suggèrent des erreurs de base non détectées qui polluent l'évaluation",
+      "expected_impact": "Réduction des scores erratiques en filtrant les erreurs grossières avant évaluation",
       "confidence": 0.8
     },
     {
-      "type": "criteria",
-      "target": "Seuils de verdict",
-      "before_summary": "Seuils fixes probablement inadaptés aux types de tâches",
-      "after": "SUCCESS: ≥80 (solution complète et robuste), PARTIAL: 50-79 (solution fonctionnelle avec lacunes), FAIL: <50 (solution non-fonctionnelle ou hors-sujet)",
-      "reason": "Les seuils actuels semblent trop permissifs, causant des verdicts PARTIAL fréquents",
-      "expected_impact": "Verdicts plus discriminants et progression plus claire",
+      "type": "heuristic",
+      "target": "Seuil de mutation",
+      "before_summary": "Mutation après chaque itération",
+      "after": "Mutation uniquement si : score < 60 OU variance des 3 derniers scores > 20 OU 2 échecs consécutifs. Sinon, consolidation du processus actuel.",
+      "reason": "Les mutations trop fréquentes empêchent la stabilisation du système",
+      "expected_impact": "Stabilisation des performances en évitant la sur-mutation",
       "confidence": 0.7
     },
     {
-      "type": "heuristic",
-      "target": "Règle d'apprentissage",
-      "before_summary": "Apprentissage sans pondération par performance récente",
-      "after": "Pondérer les leçons par: score de l'itération (poids 0.4) + tendance sur 3 itérations (poids 0.3) + cohérence avec succès passés (poids 0.3). Ignorer les leçons d'itérations <40 points.",
-      "reason": "L'apprentissage actuel ne discrimine pas assez entre succès et échecs",
-      "expected_impact": "Apprentissage plus focalisé sur les patterns de réussite",
-      "confidence": 0.6
+      "type": "prompt",
+      "target": "Phase AGIR",
+      "before_summary": "Prompt générique demandant d'exécuter la tâche",
+      "after": "Phase AGIR — Itération {iteration}\n\nAVANT D'AGIR :\n1. Lis TOUS les critères d'acceptation\n2. Identifie les contraintes techniques\n3. Planifie ta réponse en 3 étapes max\n\nTâche: {task_title}: {task_description}\nCritères: {task_acceptance_criteria}\n\nRéponds en suivant EXACTEMENT le format demandé. Vérifie ta réponse avant envoi.",
+      "reason": "Forcer une phase de planification pour réduire les erreurs de conformité",
+      "expected_impact": "Amélioration de la conformité de base et réduction des échecs",
+      "confidence": 0.9
     }
   ]
 }

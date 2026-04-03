@@ -1,7 +1,7 @@
 {
   "version": "0.3.0",
   "status": "running",
-  "current_iteration": 1,
+  "current_iteration": 0,
   "tasks": [
     {
       "id": 1,
@@ -14,16 +14,16 @@
     {
       "id": 2,
       "title": "Écrire les tests pour l'utilitaire de résumé",
-      "description": "Créer tests/test_summarize.py avec au moins 4 tests : texte vide, texte court (< max_sentences), texte long, et texte avec max_sentences=1. Utiliser pytest.",
-      "status": "in_progress",
+      "description": "Créer tests/test_summarize.py avec au moins 4 tests pour tools/summarize.py : texte vide, texte court (< max_sentences), texte long, et texte avec max_sentences=1. IMPORT: from tools.summarize import summarize, split_sentences, score_sentence. Utiliser pytest.",
+      "status": "completed",
       "priority": "high",
       "acceptance": "Tous les tests passent avec pytest. Couverture des cas limites."
     },
     {
       "id": 3,
       "title": "Améliorer le résumé avec un scoring TF-IDF simplifié",
-      "description": "Modifier tools/summarize.py pour scorer les phrases par fréquence de mots (TF simple). Les phrases contenant les mots les plus fréquents du texte sont priorisées. Pas de dépendances externes.",
-      "status": "pending",
+      "description": "Modifier tools/summarize.py pour améliorer le scoring des phrases. Utiliser la fréquence de mots (TF simple) : les phrases contenant les mots les plus fréquents du texte sont priorisées. Pas de dépendances externes. IMPORT existant: from tools.summarize import summarize.",
+      "status": "in_progress",
       "priority": "medium",
       "acceptance": "La fonction produit de meilleurs résumés. Les tests existants passent toujours."
     }

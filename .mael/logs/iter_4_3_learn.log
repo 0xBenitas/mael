@@ -2,43 +2,36 @@
   "learnings": [
     {
       "category": "failure_analysis",
-      "learning": "Une variable déclarée mais non assignée (raw_sentences sans valeur) dans une docstring complète indique une troncature du corps de fonction, pas une erreur de syntaxe. Vérifier que TOUTES les variables utilisées dans la logique sont effectivement assignées avant utilisation.",
+      "learning": "Un fichier généré incomplet (coupé au milieu d'une fonction) passe la validation manuelle mais échoue les tests existants. Avant soumission, vérifier que le fichier est complet : compter les parenthèses/accolades ouvertes/fermées, vérifier qu'aucune fonction n'est tronquée, et exécuter au minimum un import test (try: from module import *) pour détecter les erreurs de syntaxe.",
       "confidence": "haute",
-      "reusable_for": "Détection précoce de code tronqué lors de review avant exécution"
+      "reusable_for": "Toute génération de code multi-fonction; détection précoce de troncatures avant tests"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Une rupture entre l'interface attendue (tests qui importent split_sentences, score_sentence) et l'implémentation (fonctions non exportées ou manquantes) bloque l'exécution. Avant de coder, extraire la signature des tests existants et générer EXACTEMENT les fonctions attendues avec les bons noms et visibilité (public vs private).",
+      "confidence": "haute",
+      "reusable_for": "Intégration avec suites de tests existantes; respect du contrat d'interface"
     },
     {
       "category": "gotcha",
-      "learning": "Une exécution partielle (tests 1-3 passent, test 4 coupé) combinée à une docstring complète mais un corps incomplet = signature valide masquant une implémentation cassée. Toujours exécuter TOUS les cas de test jusqu'à complétion, pas juste vérifier que certains passent.",
+      "learning": "Un code 'fonctionnellement correct' (validation manuelle OK) mais 'structurellement incomplet' (fichier tronqué) reçoit un score FAIL. La validation manuelle ne suffit pas : elle doit être complétée par (1) vérification de complétude syntaxique, (2) exécution des tests existants, (3) vérification que toutes les fonctions helper attendues sont présentes et exportées.",
       "confidence": "haute",
-      "reusable_for": "Validation d'implémentation complète avant soumission"
+      "reusable_for": "Critères d'acceptation multi-niveaux; éviter les faux positifs de validation"
     },
     {
       "category": "optimization",
-      "learning": "Les learnings des itérations 1-3 (checklist pré-soumission, exécution réelle, révision explicite) n'ont pas été appliqués à l'itération 4. Implémenter une étape OBLIGATOIRE de consultation des learnings existants AVANT de commencer le code, avec trace écrite de cette consultation.",
+      "learning": "Après génération d'un algorithme complexe (TF-IDF), ajouter une étape de vérification : (1) lister toutes les fonctions appelées dans la fonction principale, (2) vérifier que chacune est définie et complète, (3) exécuter un test d'intégration simple (ex: summarize(sample_text) retourne str non-vide). Cela détecte les dépendances manquantes avant soumission.",
       "confidence": "haute",
-      "reusable_for": "Amélioration du processus itératif pour éviter la répétition de patterns d'erreur"
-    },
-    {
-      "category": "success_pattern",
-      "learning": "La structure générale (validation d'entrée, docstring, gestion d'erreurs) était correcte. Isoler et tester le cœur métier (split → scoring → extraction) séparément avant intégration pour détecter les troncatures dans les sections critiques.",
-      "confidence": "haute",
-      "reusable_for": "Stratégie de test par composant pour les fonctions complexes"
-    },
-    {
-      "category": "gotcha",
-      "learning": "Un fichier importable mais non-exécutable (import réussit, exécution échoue) crée une fausse confiance. La checklist doit distinguer : (1) Import, (2) Exécution simple, (3) Exécution avec tous les cas limites, (4) Vérification de non-troncature de sortie.",
-      "confidence": "haute",
-      "reusable_for": "Validation multi-niveaux pour éviter les faux positifs"
+      "reusable_for": "Validation de code multi-étapes; détection de dépendances manquantes"
     }
   ],
   "patterns_seen_again": [
-    "Une fonction avec signature, docstring et type hints mais sans corps exécutable (ou avec corps tronqué) passe les vérifications syntaxiques basiques mais échoue à l'exécution.",
-    "Créer une checklist pré-soumission basée sur les learnings des itérations précédentes : (1) Syntaxe valide, (2) Import sans erreur, (3) Exécution complète avec données réelles, (4) Sortie non-tronquée, (5) Gestion d'erreurs pour cas limites.",
-    "L'itération 4 a répété l'erreur des itérations 1-3 (implémentation incomplète) malgré 4 learnings documentés. Cela indique un défaut systémique : les learnings existent mais ne sont pas appliqués activement."
+    "Un code avec tests passants (44/44) mais verdict PARTIAL indique que les tests ne couvrent PAS la logique complète. Avant de déclarer succès, vérifier que les tests exercent TOUS les chemins critiques de la fonction principale.",
+    "Après génération d'une fonction multi-étapes (ex: summarize avec tri + sélection + réassemblage), valider la complétude en exécutant un test manuel simple : appeler la fonction avec un input connu et vérifier que l'output a la forme attendue.",
+    "Pour une tâche d'amélioration algorithmique (ex: TF-IDF), générer d'abord une version COMPLÈTE et BASIQUE (même si naïve), puis itérer sur la qualité. Une implémentation basique complète > une implémentation sophistiquée tronquée."
   ],
   "promote_to_claude_md": [
-    "Défaut systémique détecté : répétition de patterns d'erreur sur 4 itérations consécutives malgré documentation de learnings. Implémenter une étape de révision OBLIGATOIRE qui consulte les learnings existants avant chaque itération, avec trace écrite.",
-    "Checklist de validation multi-niveaux : (1) Syntaxe, (2) Import, (3) Exécution simple, (4) Exécution complète avec tous les cas limites, (5) Vérification de non-troncature de sortie. Appliquer avant chaque soumission.",
-    "Signal composite de code cassé : variable déclarée sans assignation + docstring complète + exécution partielle = implémentation tronquée. Ne pas ignorer les signaux multiples convergents."
+    "Avant soumission de code généré, exécuter un test de complétude syntaxique : vérifier que le fichier n'est pas tronqué (parenthèses équilibrées, pas de fonction inachevée) et que toutes les fonctions attendues par les tests existants sont présentes et exportées.",
+    "Pour l'intégration avec des suites de tests existantes, extraire d'abord la signature des imports et des appels de fonction attendus, puis générer EXACTEMENT ces interfaces avant d'implémenter la logique."
   ]
 }
