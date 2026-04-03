@@ -1,0 +1,9 @@
+{
+  "iterations": [],
+  "aggregate": {
+    "total_iterations": 0,
+    "success_rate": 0,
+    "avg_score": 0,
+    "mutations_applied": 0
+  }
+}

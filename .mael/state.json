@@ -1,0 +1,10 @@
+{
+  "version": "0.1.0",
+  "status": "initialized",
+  "current_iteration": 0,
+  "tasks": [],
+  "meta": {
+    "created": "2026-04-03",
+    "description": "MAEL — Méta-Amélioration Évolutive en Ligne"
+  }
+}
