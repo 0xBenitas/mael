@@ -1,0 +1,33 @@
+{
+  "analysis": "Le processus MAEL montre une dégradation critique avec une chute de 40 points en une itération (70→30). Les scores oscillent sans progression claire, suggérant un manque de cohérence dans l'évaluation et l'apprentissage. Les prompts actuels sont trop génériques et ne capturent pas assez de contexte spécifique aux tâches.",
+  "health": "critical",
+  "mutations": [
+    {
+      "type": "prompt",
+      "target": "ÉVALUER prompt",
+      "before_summary": "Évaluation générique sans contexte historique ni critères adaptatifs",
+      "after": "Phase ÉVALUER — Itération {iteration}\n\nTu évalues la solution de MAEL avec CONTEXTE HISTORIQUE.\n\n## Historique des 3 dernières itérations\n{recent_history}\n\n## Tâche évaluée\nID: {task_id}\nTitre: {task_title}\nCritères: {criteria}\n\n## Solution à évaluer\n{solution}\n\n## Instructions\n1. Compare avec les patterns de réussite/échec passés\n2. Évalue la cohérence avec l'apprentissage précédent\n3. Score sur 100 avec justification détaillée\n4. Identifie les points d'amélioration spécifiques\n\nRéponds en JSON: {\"score\": X, \"verdict\": \"SUCCESS|PARTIAL|FAIL\", \"reasoning\": \"...\", \"improvements\": [\"...\"], \"consistency_check\": \"...\"",
+      "reason": "L'évaluateur manque de contexte historique, causant des scores incohérents",
+      "expected_impact": "Stabilisation des scores et meilleure cohérence d'évaluation",
+      "confidence": 0.8
+    },
+    {
+      "type": "criteria",
+      "target": "Seuils de verdict",
+      "before_summary": "Seuils fixes probablement inadaptés aux types de tâches",
+      "after": "SUCCESS: ≥80 (solution complète et robuste), PARTIAL: 50-79 (solution fonctionnelle avec lacunes), FAIL: <50 (solution non-fonctionnelle ou hors-sujet)",
+      "reason": "Les seuils actuels semblent trop permissifs, causant des verdicts PARTIAL fréquents",
+      "expected_impact": "Verdicts plus discriminants et progression plus claire",
+      "confidence": 0.7
+    },
+    {
+      "type": "heuristic",
+      "target": "Règle d'apprentissage",
+      "before_summary": "Apprentissage sans pondération par performance récente",
+      "after": "Pondérer les leçons par: score de l'itération (poids 0.4) + tendance sur 3 itérations (poids 0.3) + cohérence avec succès passés (poids 0.3). Ignorer les leçons d'itérations <40 points.",
+      "reason": "L'apprentissage actuel ne discrimine pas assez entre succès et échecs",
+      "expected_impact": "Apprentissage plus focalisé sur les patterns de réussite",
+      "confidence": 0.6
+    }
+  ]
+}

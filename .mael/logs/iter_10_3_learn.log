@@ -1,0 +1,44 @@
+{
+  "learnings": [
+    {
+      "category": "failure_analysis",
+      "learning": "Avant de générer des tests, valider que le module source existe et est importable. Créer un fichier test minimal (import uniquement) et l'exécuter d'abord. Cela détecte les erreurs de chemin ou de structure avant d'investir dans la génération complète.",
+      "confidence": "haute",
+      "reusable_for": "Toute tâche de test pour un nouveau module. Pattern de validation préalable applicable à tous les projets."
+    },
+    {
+      "category": "gotcha",
+      "learning": "Générer des tests par blocs de 5-8 avec exécution immédiate après chaque bloc. Évite les fichiers tronqués, les erreurs de syntaxe massives, et permet de corriger les erreurs d'import avant de continuer. La génération monolithique de 34 tests sans validation = risque critique.",
+      "confidence": "haute",
+      "reusable_for": "Génération de suites de tests volumineuses. Applicable à tout fichier test >200 lignes."
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Valider la complétude du fichier généré : compter les `def test_*`, vérifier la fermeture des fonctions, exécuter `ast.parse()` sur le fichier avant commit. Détecte les troncatures et les erreurs de syntaxe silencieuses.",
+      "confidence": "haute",
+      "reusable_for": "Validation post-génération de tout fichier Python. Ajouter comme étape systématique dans le workflow."
+    },
+    {
+      "category": "optimization",
+      "learning": "Pour un module <200 LOC, 8-12 tests bien ciblés suffisent. Avant de générer 34 tests, justifier le nombre : documenter le ratio tests/LOC et l'intention de chaque test. Évite la sur-ingénierie et réduit le temps de maintenance.",
+      "confidence": "moyenne",
+      "reusable_for": "Planification de suites de tests. Utile pour évaluer la proportionnalité effort/couverture."
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Structure pytest bien intentionnée (logging, isolation) ne suffit pas sans exécution. Pattern obligatoire : (1) générer structure, (2) exécuter immédiatement, (3) corriger erreurs, (4) valider couverture. L'ordre est critique.",
+      "confidence": "haute",
+      "reusable_for": "Toute tâche de test. Rappel que la structure seule n'est pas une livrable."
+    }
+  ],
+  "patterns_seen_again": [
+    "Générer par blocs de 5-8 tests, exécuter immédiatement, valider la syntaxe et l'import, puis continuer. Évite les fichiers tronqués et les erreurs de masse.",
+    "Fichier test coupé au milieu indique une génération interrompue. Toujours vérifier la complétude du fichier généré : compter les def test_*, vérifier la fermeture des fonctions, valider la syntaxe avec ast.parse() avant commit.",
+    "Avant d'écrire des tests, valider que le module source existe et est importable. Ajouter une étape 'Import validation' : créer un fichier test minimal qui importe uniquement le module, l'exécuter, puis procéder aux tests complets."
+  ],
+  "promote_to_claude_md": [
+    "Import validation step: Always create and execute a minimal test file (import only) before generating full test suite. Detects path/structure errors early.",
+    "Incremental test generation: Generate tests in blocks of 5-8, execute immediately after each block, validate syntax and imports before continuing. Prevents truncation and mass errors.",
+    "Post-generation validation: Count `def test_*`, verify function closures, run `ast.parse()` on generated file before commit. Detects silent truncation and syntax errors."
+  ]
+}

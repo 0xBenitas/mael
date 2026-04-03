@@ -1,0 +1,44 @@
+{
+  "learnings": [
+    {
+      "category": "failure_analysis",
+      "learning": "Les troncatures de sortie mid-word (ex: 'Machine learn' au lieu d'un résumé complet) indiquent une erreur d'écriture fichier ou une exception silencieuse. Ajouter une validation post-écriture : (1) Vérifier que le fichier n'est pas vide, (2) Lire et afficher les 100 premiers et 100 derniers caractères, (3) Valider que les fonctions critiques sont complètes (chercher 'return' dans chaque fonction).",
+      "confidence": "haute",
+      "reusable_for": "Tout développement de fichier Python complexe; détection précoce de corruptions d'écriture"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Tester chaque composant isolément AVANT intégration, avec affichage complet input→output. Pour summarize.py : (1) split_sentences() sur 5 cas (vide, 1 phrase, ponctuation mixte, nombres, guillemets), (2) score_sentence() sur 3 phrases isolées avec scores attendus, (3) summarize() sur 2 textes courts (< 200 chars) avec output complet visible. Chaque test doit logguer le type et la longueur de l'input.",
+      "confidence": "haute",
+      "reusable_for": "Validation de modules avec dépendances internes; détection de bugs d'intégration"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Les cas limites (texte vide, une phrase, très long texte) doivent être testés EXPLICITEMENT et loggués. Ajouter une étape 'Edge cases validation' : (1) Texte vide → résumé vide, (2) Une phrase → résumé = phrase, (3) Texte > 1000 chars → résumé < 50% original. Chaque cas doit afficher assertion + résultat réel.",
+      "confidence": "haute",
+      "reusable_for": "Validation de fonctions de traitement de texte; prévention de comportements imprévisibles"
+    },
+    {
+      "category": "optimization",
+      "learning": "Appliquer les learnings existants AVANT AGIR : créer une checklist tracée qui mappe chaque learning à une action. Exemple : 'Learning validation_intermédiaire appliqué : 5 étapes de validation post-création exécutées et loggées'. Cela force la réutilisation et crée une trace d'audit.",
+      "confidence": "haute",
+      "reusable_for": "Toute itération APPRENDRE; amélioration continue systématique"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Les logs incomplets (étapes 4-5 manquantes) indiquent une troncature de sortie ou un crash non capturé. Ajouter un wrapper try-except global autour de chaque étape de validation avec logging du traceback complet. Limiter chaque log à 1000 chars max pour éviter les dépassements de tokens.",
+      "confidence": "haute",
+      "reusable_for": "Validation multi-étapes; diagnostic de défaillances silencieuses"
+    }
+  ],
+  "patterns_seen_again": [
+    "L'absence de validation intermédiaire entre création et test masque les défaillances. Ajouter une étape obligatoire post-création : (1) Vérifier le fichier existe et n'est pas vide, (2) Compiler/parser le code, (3) Importer le module, (4) Exécuter une fonction simple, (5) Exécuter les cas limites. Chaque étape doit être loggée avec succès/échec explicite.",
+    "Tester les composants critiques isolément avant intégration. Pour un résumé de texte : (1) Tester split_sentences() sur 5 cas (vide, une phrase, ponctuation mixte, etc.), (2) Tester score_sentence() sur phrases isolées, (3) Tester summarize() sur textes complets. Chaque test doit afficher input → output complet, pas juste 'OK'.",
+    "Les sorties tronquées au milieu d'une chaîne (ex: 'This is a shor') indiquent souvent un dépassement de limite de tokens ou une exception non capturée. Ajouter un try-except global avec logging du traceback complet, et limiter les outputs de test à des tailles prévisibles (max 500 chars par test)."
+  ],
+  "promote_to_claude_md": [
+    "Validation intermédiaire obligatoire post-création : 5 étapes (fichier existe, syntaxe valide, import réussit, fonction simple exécute, cas limites testés). Chaque étape loggée explicitement.",
+    "Composants isolés d'abord : tester split_sentences(), score_sentence(), summarize() séparément avec input→output complet avant intégration.",
+    "Gestion des cas limites explicite : texte vide, une phrase, très long texte. Chaque cas doit afficher assertion + résultat réel."
+  ]
+}

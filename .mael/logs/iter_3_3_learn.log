@@ -1,12 +1,45 @@
 {
   "learnings": [
     {
-      "category": "success_pattern",
-      "learning": "Task scored 75/100",
+      "category": "failure_analysis",
+      "learning": "Une docstring tronquée (s'arrêtant au milieu d'une phrase comme 'Raises: ValueError: If max_sentences is less than') est un indicateur fiable que le fichier a été écrit partiellement ou corrompu. Toujours vérifier que les docstrings sont complètes avant de considérer une implémentation valide.",
       "confidence": "haute",
-      "reusable_for": "similar tasks"
+      "reusable_for": "Validation de complétude de code avant exécution; détection précoce de fichiers incomplets"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Une fonction avec signature, docstring et type hints mais sans corps exécutable (ou avec corps tronqué) passe les vérifications syntaxiques basiques mais échoue à l'exécution. Exiger une exécution réelle avec données de test, pas juste une vérification d'import.",
+      "confidence": "haute",
+      "reusable_for": "Critères d'acceptation pour toute fonction; validation d'exécution end-to-end"
+    },
+    {
+      "category": "optimization",
+      "learning": "Créer une checklist pré-soumission basée sur les learnings des itérations précédentes : (1) Syntaxe valide, (2) Import sans erreur, (3) Exécution complète avec données réelles, (4) Sortie non-tronquée, (5) Gestion d'erreurs pour cas limites. Appliquer cette checklist avant chaque soumission.",
+      "confidence": "haute",
+      "reusable_for": "Processus itératif; prévention de répétition d'erreurs connues"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "L'itération 3 a répété l'erreur des itérations 1 et 2 (implémentation incomplète) malgré 4 learnings documentés. Cela indique un défaut systémique : les learnings existent mais ne sont pas appliqués activement. Implémenter une étape de révision explicite qui consulte les learnings avant de coder.",
+      "confidence": "haute",
+      "reusable_for": "Amélioration du processus d'apprentissage; boucle de feedback"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Une sortie tronquée ('It enables system' au lieu d'une phrase complète) combinée à une docstring tronquée est un signal composite très fort d'implémentation cassée. Ne pas ignorer les signaux multiples convergents.",
+      "confidence": "haute",
+      "reusable_for": "Diagnostic d'erreurs; triangulation de problèmes"
     }
   ],
-  "patterns_seen_again": [],
-  "promote_to_claude_md": []
+  "patterns_seen_again": [
+    "Une fonction tronquée au milieu de sa logique crée une syntaxe invalide qui échoue silencieusement à l'import.",
+    "Une sortie tronquée dans stdout est un signal d'alerte d'exécution défaillante.",
+    "Déclarer une fonction avec docstring et type hints mais sans implémentation complète crée une fausse impression de complétude.",
+    "Les critères d'acceptation doivent inclure explicitement : (1) Syntaxe valide vérifiée, (2) Import sans erreur, (3) Exécution complète sans troncature, (4) Gestion d'erreurs pour cas limites.",
+    "L'itération 2 a répété l'erreur de l'itération 1 malgré les learnings documentés, indiquant que les learnings n'ont pas été appliqués activement."
+  ],
+  "promote_to_claude_md": [
+    "Créer une checklist pré-soumission basée sur les learnings des itérations précédentes : (1) Syntaxe valide, (2) Import sans erreur, (3) Exécution complète avec données réelles, (4) Sortie non-tronquée, (5) Gestion d'erreurs pour cas limites. Appliquer cette checklist avant chaque soumission.",
+    "L'itération 3 a répété l'erreur des itérations 1 et 2 malgré 4 learnings documentés. Implémenter une étape de révision explicite qui consulte les learnings avant de coder pour briser le cycle de répétition d'erreurs."
+  ]
 }

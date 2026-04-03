@@ -1,0 +1,16 @@
+{
+  "task_id": 2,
+  "verdict": "FAIL",
+  "score": 41,
+  "scores": {
+    "correctness": 5,
+    "completeness": 8,
+    "quality": 12,
+    "testability": 6,
+    "learning": 10
+  },
+  "critique": "Le fichier test a été créé avec une bonne structure et intentions (logging explicite, isolation des composants, couverture des cas limites), mais l'exécution échoue immédiatement : ModuleNotFoundError sur 'summarize'. Cela révèle un problème critique : le module source n'existe pas ou n'est pas accessible. Le fichier test est incomplet (coupé au milieu de test_empty_text). Les 34 tests collectés suggèrent une tentative de génération massive sans validation préalable. Qualité du code visible : bonne (logging, structure pytest, isolation), mais inutile sans module source fonctionnel.",
+  "suggestion": "1. VÉRIFIER l'existence et l'accessibilité de src/summarize.py avant de créer les tests. 2. VALIDER l'import en exécutant 'python -c \"from summarize import split_sentences\"' depuis le répertoire src/. 3. RÉGÉNÉRER tests/test_summarize.py avec un nombre raisonnable de tests (4-6 au lieu de 34) et vérifier la complétude du fichier (pas de troncature). 4. EXÉCUTER pytest immédiatement après création pour détecter les erreurs d'import. 5. APPLIQUER le pattern : vérifier dépendances → créer tests → valider → itérer.",
+  "test_output": "============================= test session starts ==============================\nplatform linux -- Python 3.11.15, pytest-9.0.2, pluggy-1.6.0 -- /usr/local/bin/python\ncachedir: .pytest_cache\nrootdir: /home/user/mael\nplugins: anyio-4.13.0\ncollecting ... collected 34 items / 1 error\n\n==================================== ERRORS ====================================\n___________________ ERROR collecting tests/test_summarize.py ___________________\nImportError while importing test module '/home/user/mael/tests/test_summarize.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\n/usr/lib/python3.11/importlib/__init__.py:126: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\ntests/test_summarize.py:15: in <module>\n    from summarize import split_sentences, score_sentence, summarize\nE   ModuleNotFoundError: No module named 'summarize'\n=========================== short test summary info ============================\nERROR tests/test_summarize.py\n!!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!\n=============================== 1 error in 0.41s ===============================\n",
+  "timestamp": "2026-04-03T22:28:33.836153"
+}

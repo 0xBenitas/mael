@@ -1,0 +1,50 @@
+{
+  "learnings": [
+    {
+      "category": "success_pattern",
+      "learning": "Une architecture modulaire avec fonctions isolées (split_sentences, score_sentence, summarize) + suite de validation intégrée (5 étapes tracées) + tests pytest complets (34 tests) = score 85/100. Pattern : décomposer, valider chaque composant, puis intégrer avec logs explicites.",
+      "confidence": "haute",
+      "reusable_for": "Tout utilitaire de traitement de texte ou pipeline de données nécessitant robustesse et traçabilité"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Les cas limites testés explicitement (texte vide, 1 phrase, >1000 chars) avec assertions loggées préviennent les bugs en production. Ajouter systématiquement une étape 'Edge cases validation' AVANT de déclarer une tâche complète.",
+      "confidence": "haute",
+      "reusable_for": "Validation de toute fonction de traitement de données ou texte"
+    },
+    {
+      "category": "optimization",
+      "learning": "La heuristique de scoring basique (longueur + densité mots-clés) fonctionne mais TF-IDF améliorerait la qualité. Pour itérations futures : commencer simple, mesurer, puis sophistiquer. Documenter le seuil de complexité où l'amélioration justifie le coût.",
+      "confidence": "moyenne",
+      "reusable_for": "Décisions d'optimisation sur algorithmes de scoring ou ranking"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Absence de gestion explicite des doublons de phrases dans le résumé = bug potentiel sur textes répétitifs. Ajouter une étape de déduplication post-sélection. Tester avec textes contenant phrases identiques ou très similaires.",
+      "confidence": "haute",
+      "reusable_for": "Tout système de sélection/ranking de contenu (résumé, extraction, recommandation)"
+    },
+    {
+      "category": "optimization",
+      "learning": "Absence de benchmarks de performance sur textes volumineux (>10k chars) = risque de dégradation en production. Ajouter une étape de profiling : mesurer temps d'exécution et mémoire sur 3 tailles (100, 1000, 10000 chars).",
+      "confidence": "haute",
+      "reusable_for": "Validation de performance pour tout utilitaire destiné à traiter des données variables en taille"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Logs explicites avec type + longueur d'input pour chaque composant testé isolément = traçabilité complète. Pattern : logguer (1) input type/size, (2) processing step, (3) output type/size, (4) assertion result.",
+      "confidence": "haute",
+      "reusable_for": "Debugging et audit de tout pipeline de traitement"
+    }
+  ],
+  "patterns_seen_again": [
+    "Tester chaque composant isolément AVANT intégration, avec affichage complet input→output",
+    "Les cas limites (texte vide, une phrase, très long texte) doivent être testés EXPLICITEMENT et loggués",
+    "Appliquer les learnings existants AVANT AGIR : créer une checklist tracée qui mappe chaque learning à une action"
+  ],
+  "promote_to_claude_md": [
+    "Architecture modulaire + validation intégrée + tests complets = pattern de succès pour utilitaires robustes",
+    "Cas limites explicites + assertions loggées = prévention de bugs en production",
+    "Profiling de performance (temps + mémoire) sur 3 tailles d'input = validation obligatoire avant production"
+  ]
+}

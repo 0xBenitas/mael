@@ -1,0 +1,44 @@
+{
+  "learnings": [
+    {
+      "category": "gotcha",
+      "learning": "Les troncatures d'exécution se cachent souvent dans les docstrings ou les sorties partielles de tests. Implémenter une vérification stricte : chaque étape critique doit produire un marqueur de fin explicite (ex: '=== STEP_NAME COMPLETED ===') et vérifier que le fichier généré est complet via `wc -l` ou hash de contenu attendu.",
+      "confidence": "haute",
+      "reusable_for": "Toute tâche impliquant génération de fichiers ou exécution de tests multi-étapes"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "L'absence de validation intermédiaire entre création et test masque les défaillances. Ajouter une étape obligatoire post-création : (1) Vérifier le fichier existe et n'est pas vide, (2) Compiler/parser le code, (3) Importer le module, (4) Exécuter une fonction simple, (5) Exécuter les cas limites. Chaque étape doit être loggée avec succès/échec explicite.",
+      "confidence": "haute",
+      "reusable_for": "Création de modules Python, utilitaires, ou outils nécessitant validation progressive"
+    },
+    {
+      "category": "optimization",
+      "learning": "Consulter et appliquer les learnings existants AVANT de commencer la phase AGIR. Créer une étape tracée : (1) Lister les learnings pertinents, (2) Mapper chacun à une action concrète dans la checklist, (3) Ajouter une ligne 'Learning X appliqué : [description]' dans la soumission. Cela évite les répétitions de patterns d'erreur.",
+      "confidence": "haute",
+      "reusable_for": "Toute itération utilisant des learnings antérieurs"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Tester les composants critiques isolément avant intégration. Pour un résumé de texte : (1) Tester split_sentences() sur 5 cas (vide, une phrase, ponctuation mixte, etc.), (2) Tester score_sentence() sur phrases isolées, (3) Tester summarize() sur textes complets. Chaque test doit afficher input → output complet, pas juste 'OK'.",
+      "confidence": "haute",
+      "reusable_for": "Développement de fonctions composées ou pipelines de traitement"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Les sorties tronquées au milieu d'une chaîne (ex: 'This is a shor') indiquent souvent un dépassement de limite de tokens ou une exception non capturée. Ajouter un try-except global avec logging du traceback complet, et limiter les outputs de test à des tailles prévisibles (max 500 chars par test).",
+      "confidence": "haute",
+      "reusable_for": "Débogage de troncatures mystérieuses dans les exécutions"
+    }
+  ],
+  "patterns_seen_again": [
+    "L'exécution partielle de tests (TEST 1-3 complets, TEST 4 coupé en plein texte) crée une fausse confiance. Implémenter une vérification stricte : tous les tests doivent produire une sortie COMPLÈTE et TERMINÉE, pas juste 'partiellement exécutés'.",
+    "La consultation des learnings existants (itérations 1-4) n'a pas été appliquée avant l'itération 5. Créer une étape OBLIGATOIRE et tracée : (1) Lire les learnings pertinents, (2) Lister explicitement lesquels s'appliquent à la tâche actuelle, (3) Intégrer chacun dans la checklist pré-soumission.",
+    "La checklist pré-soumission doit être multi-niveaux et strictement ordonnée : (1) Syntaxe, (2) Import, (3) Exécution simple, (4) Exécution complète, (5) Vérification de non-troncature."
+  ],
+  "promote_to_claude_md": [
+    "Implémenter une vérification stricte de complétude : chaque étape critique doit produire un marqueur de fin explicite et vérifier que les fichiers générés sont complets via wc -l ou hash de contenu.",
+    "Ajouter une étape obligatoire post-création : (1) Vérifier fichier existe, (2) Compiler/parser, (3) Importer, (4) Exécuter simple, (5) Exécuter limites. Chaque étape loggée avec succès/échec explicite.",
+    "Consulter et appliquer les learnings existants AVANT phase AGIR. Mapper chacun à une action concrète et tracer l'application dans la soumission."
+  ]
+}

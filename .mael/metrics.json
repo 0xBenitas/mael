@@ -71,12 +71,92 @@
       "score": 75,
       "details": "Mock evaluation — task appears well-structured.",
       "timestamp": "2026-04-03T21:58:44.340234"
+    },
+    {
+      "iteration": 1,
+      "task_id": 1,
+      "verdict": "PARTIAL",
+      "score": 69,
+      "details": "La tâche est partiellement réussie. Points positifs : (1) Le fichier existe et la fonction est importable ✓, (2) Les critères d'acceptation sont techniquement couverts, (3) L'approche heuristique est simple et fonctionnelle. Points négatifs : (1) Le code est incomplet - la fonction `_score_sentence` est déclarée mais non implémentée (ligne 44 vide), ce qui rend la fonction `summarize` non fonctionnelle, (2) Le test intégré dans le stdout est tronqué ('Machine learni...' incomplet), suggérant une exécution défaillante, (3) Pas de gestion d'erreurs (texte vide, None, texte sans phrases), (4) La qualité du code souffre de l'implémentation incomplète, (5) Les tests manuels montrent une sortie tronquée, indiquant un bug d'exécution non diagnostiqué.",
+      "timestamp": "2026-04-03T22:23:33.239774"
+    },
+    {
+      "iteration": 2,
+      "task_id": 1,
+      "verdict": "PARTIAL",
+      "score": 55,
+      "details": "Le code a été créé mais l'exécution révèle des problèmes critiques : (1) La fonction `summarize()` est incomplète - elle s'arrête au milieu de la logique de garde (ligne 'if not s' tronquée), ce qui rend le fichier syntaxiquement invalide. (2) Le test d'import échoue silencieusement car le fichier ne peut pas être parsé. (3) Le test intégré produit une sortie tronquée ('Machine learning is a...') au lieu d'un résumé complet, confirmant l'implémentation inachevée. (4) Les critères d'acceptation ne sont PAS satisfaits : le résumé retourné n'est pas valide. (5) Bien que la structure générale soit bonne (docstring, type hints, gestion d'erreurs), l'implémentation core est cassée. Les apprentissages de l'itération 1 (gestion d'erreurs, tests exhaustifs) ont été partiellement appliqués mais le code n'a pas été complété avant exécution.",
+      "timestamp": "2026-04-03T22:24:03.508727"
+    },
+    {
+      "iteration": 3,
+      "task_id": 1,
+      "verdict": "FAIL",
+      "score": 55,
+      "details": "Le fichier tools/summarize.py est INCOMPLET. La docstring de la fonction `summarize()` est tronquée (s'arrête à 'Raises: ValueError: If max_sentences is less than'). Le corps de la fonction est manquant. Les tests d'exécution montrent une sortie tronquée ('It enables system' au lieu d'une phrase complète), confirmant que l'implémentation n'est pas finalisée. Bien que la structure soit correcte et les imports valides, le code ne remplit pas les critères d'acceptation car la fonction ne retourne pas un résumé cohérent et complet. L'heuristique décrite (scoring par longueur + mots-clés) n'est pas implémentée.",
+      "timestamp": "2026-04-03T22:24:33.840413"
+    },
+    {
+      "iteration": 4,
+      "task_id": 1,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "Le fichier tools/summarize.py a été créé avec une implémentation partielle. L'exécution montre que le code est tronqué : la variable `raw_sentences` est déclarée mais jamais assignée (ligne 'raw_sentences' sans valeur). Cela provoque une erreur à l'exécution lors du traitement du texte. Les tests manuels affichent des résultats partiels (Test 1-3 passent, Test 4 est coupé), ce qui indique que l'exécution s'arrête prématurément. Bien que la structure générale soit correcte (validation d'entrée, docstring, gestion d'erreurs), l'implémentation du cœur de la fonction (split, scoring, extraction) est incomplète. Les critères d'acceptation ne sont donc que partiellement satisfaits : le fichier existe et est importable, mais la fonction ne retourne pas systématiquement un résumé valide pour tous les cas.",
+      "timestamp": "2026-04-03T22:25:05.698882"
+    },
+    {
+      "iteration": 5,
+      "task_id": 1,
+      "verdict": "FAIL",
+      "score": 30,
+      "details": "Le fichier tools/summarize.py est TRONQUÉ. La fonction summarize() s'arrête à la ligne 'if max_' sans terminer la validation d'entrée ni implémenter le cœur métier (split phrases, scoring, extraction). Les tests affichés dans stdout sont partiellement exécutés mais incomplets (TEST 4 s'arrête en plein texte). Signaux d'alerte critiques : (1) Variable 'max_' déclarée sans assignation = implémentation inachevée, (2) Docstring complète masque l'absence de corps, (3) Tests partiels donnent fausse confiance. Les critères d'acceptation ne sont PAS satisfaits : la fonction n'est pas complètement importable (SyntaxError probable), elle ne retourne rien (None au lieu d'un résumé). La checklist pré-soumission multi-niveaux n'a pas été appliquée : étape 1 (syntaxe) aurait détecté l'erreur.",
+      "timestamp": "2026-04-03T22:25:40.962512"
+    },
+    {
+      "iteration": 6,
+      "task_id": 1,
+      "verdict": "PARTIAL",
+      "score": 66,
+      "details": "La phase AGIR montre une exécution incomplète et tronquée. Points critiques : (1) Le fichier tools/summarize.py a été créé mais la sortie est TRONQUÉE au milieu de la docstring (\"It has only two sentences.\\nSummary: This is a shor\"), ce qui indique une interruption d'exécution. (2) Les tests de la checklist multi-niveaux n'ont pas tous complété : le niveau 4&5 (exécution complète) s'arrête brutalement. (3) La vérification finale des critères d'acceptation n'a pas pu s'exécuter complètement. (4) Le code source réel du fichier n'est pas visible en entier - seule la docstring initiale est montrée. (5) Les résultats de pytest (34 tests) sont partiels et tronqués. Bien que les learnings aient été consultés et la structure soit conceptuellement correcte (split_sentences, score_sentence, summarize), l'exécution réelle n'a pas pu être validée. Les critères d'acceptation (fichier existe, fonction importable, résumé plus court) ne peuvent pas être confirmés avec certitude.",
+      "timestamp": "2026-04-03T22:26:36.989195"
+    },
+    {
+      "iteration": 7,
+      "task_id": 1,
+      "verdict": "PARTIAL",
+      "score": 65,
+      "details": "La phase AGIR a produit un fichier tools/summarize.py avec structure prometteuse, mais l'exécution révèle des problèmes critiques : (1) Le code est incomplet—la fonction summarize() est tronquée dans la sortie (\"Machine learn\" au lieu d'un résumé complet), suggérant une troncature ou erreur d'écriture. (2) Les critères d'acceptation ne sont que partiellement validés : le fichier existe ✓, la syntaxe est valide ✓, l'import fonctionne ✓, mais l'exécution du test 1 montre une sortie tronquée ✗. (3) La validation intermédiaire (5 étapes) a été exécutée mais les étapes 4-5 sont incomplètes dans les logs. (4) Les composants isolés (split_sentences, score_sentence) ne sont pas testés individuellement dans la sortie visible. (5) La gestion des cas limites (texte vide, une phrase, très long texte) n'est pas démontrée. Qualité : le code suit les bonnes pratiques (docstrings, type hints, séparation des responsabilités), mais l'implémentation est inachevée. Testabilité : excellente structure pour les tests, mais les tests réels sont manquants ou tronqués.",
+      "timestamp": "2026-04-03T22:27:18.821497"
+    },
+    {
+      "iteration": 8,
+      "task_id": 1,
+      "verdict": "SUCCESS",
+      "score": 85,
+      "details": "La solution implémente correctement un utilitaire de résumé fonctionnel. Points forts : (1) Le fichier existe et la fonction est importable ✓ (2) La fonction retourne un résumé plus court que l'original ✓ (3) Architecture modulaire avec split_sentences(), score_sentence(), summarize() testés isolément ✓ (4) Gestion robuste des cas limites (texte vide, 1 phrase, >1000 chars) avec assertions loggées ✓ (5) Suite de validation intégrée avec 5 étapes tracées et logs explicites ✓ (6) Tests pytest complets (34 tests passants) ✓. Points d'amélioration mineurs : (1) La heuristique de scoring (longueur + densité mots-clés) est basique mais fonctionnelle ; elle pourrait intégrer TF-IDF pour plus de sophistication (2) Pas de gestion explicite des doublons de phrases dans le résumé (3) La normalisation du score pourrait être documentée plus clairement (4) Absence de benchmarks de performance sur textes volumineux (>10k chars).",
+      "timestamp": "2026-04-03T22:27:59.356882"
+    },
+    {
+      "iteration": 9,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 41,
+      "details": "Le fichier test a été créé avec une bonne structure et intentions (logging explicite, isolation des composants, couverture des cas limites), mais l'exécution échoue immédiatement : ModuleNotFoundError sur 'summarize'. Cela révèle un problème critique : le module source n'existe pas ou n'est pas accessible. Le fichier test est incomplet (coupé au milieu de test_empty_text). Les 34 tests collectés suggèrent une tentative de génération massive sans validation préalable. Qualité du code visible : bonne (logging, structure pytest, isolation), mais inutile sans module source fonctionnel.",
+      "timestamp": "2026-04-03T22:28:33.836305"
+    },
+    {
+      "iteration": 10,
+      "task_id": 2,
+      "verdict": "FAIL",
+      "score": 20,
+      "details": "La tâche a échoué critiquement. Le fichier `tests/test_summarize.py` est incomplet (troncature à l'import), causant une erreur de syntaxe. L'import validation échoue car `src/summarize.py` n'existe pas ou n'est pas accessible. Les tests ne peuvent pas s'exécuter. Le pattern d'import validation a été appliqué correctement (bonne pratique), mais le module source manquant invalide toute la suite. Aucun test n'a pu être exécuté. La génération par blocs a été interrompue avant completion.",
+      "timestamp": "2026-04-03T22:29:02.730393"
     }
   ],
   "aggregate": {
-    "total_iterations": 9,
-    "success_rate": 1.0,
-    "avg_score": 75.0,
+    "total_iterations": 19,
+    "success_rate": 0.526,
+    "avg_score": 64.8,
     "mutations_applied": 0
   }
 }
