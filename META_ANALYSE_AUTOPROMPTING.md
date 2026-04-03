@@ -52,6 +52,27 @@ Niveau 3 : Ouroboros / Méta-récursion complète
 | Ralph Loop | 2-3 | **Facile** | **Natif** | Oui |
 | Bootstrap Seed | 3 | **Facile** | **Natif** | Oui (CC-BY) |
 | Compounding Eng. | 2 | Moyenne | Adaptable | Oui |
+| TextGrad | 1-2 | **Facile** | Oui (litellm) | Oui |
+| GEPA (DSPy) | 2 | Moyenne | **Oui officiel** | Oui |
+| EvoPrompt | 1 | Moyenne | Oui | Oui |
+| Meta Prompting | 2 | Moyenne | Oui | Oui |
+| STaR | 2 | Difficile | Non (fine-tune) | Oui |
+
+### Classement par accessibilité "Vibe Coding" (du plus facile au plus dur)
+
+| Rang | Technique | Difficulté | Pourquoi |
+|------|-----------|------------|----------|
+| 1 | **Self-Refine** | Trivial | Boucle generate-critique-refine en ~20 lignes |
+| 2 | **TextGrad** | Facile | `pip install textgrad`, API style PyTorch |
+| 3 | **Ralph Loop** | Facile | Un script bash + CLAUDE.md, c'est tout |
+| 4 | **Bootstrap Seed** | Facile | Un prompt de 1400 tokens qui s'auto-configure |
+| 5 | **DSPy + MIPROv2** | Facile/Moyen | `pip install dspy`, support Claude officiel |
+| 6 | **GEPA (via DSPy)** | Moyen | `dspy.GEPA`, notebooks fournis, SOTA 2025 |
+| 7 | **OPRO** | Moyen | Concept simple, facile à re-implémenter |
+| 8 | **APE** | Moyen | Besoin d'exemples I/O + fonction d'évaluation |
+| 9 | **EvoPrompt** | Moyen | Algorithme évolutionnaire + dev set |
+| 10 | **PromptBreeder** | Difficile | Multi-population, coûteux en tokens |
+| 11 | **STaR / RISE** | Difficile | Nécessite du fine-tuning, pas via API |
 
 ---
 
@@ -165,6 +186,74 @@ optimized = optimizer.compile(dspy.ChainOfThought(AnswerQuestion), trainset=data
 
 **Force** : Le plus mature, le plus utilisable en production
 **Limite** : Nécessite un dataset d'évaluation
+
+---
+
+### 2.6 GEPA — Reflective Prompt Evolution (SOTA 2025)
+**Paper** : Agrawal et al., 2025 — [arXiv:2507.19457](https://arxiv.org/abs/2507.19457)
+
+**L'évolution la plus récente et la plus performante.**
+
+Contrairement à MIPROv2 (recherche bayésienne), GEPA lit les **traces d'exécution complètes** (erreurs, logs de raisonnement, profiling) et utilise un LLM pour **diagnostiquer** pourquoi un candidat a échoué, puis propose des corrections ciblées.
+
+```
+Boucle GEPA :
+  1. Exécuter le programme DSPy sur des exemples
+  2. Analyser les traces d'erreur (pas juste le score)
+  3. Diagnostiquer la cause racine comme un humain
+  4. Proposer des mutations ciblées du prompt/programme
+  5. Répéter
+```
+
+**Résultat** : 93% sur MATH (vs 67% avec ChainOfThought basique), surpasse GRPO de 6% en moyenne.
+Disponible via `dspy.GEPA`.
+
+---
+
+### 2.7 TextGrad — Descente de Gradient en Langage Naturel
+**Paper** : Yuksekgonul et al. (Stanford), 2024 — Publié dans **Nature** (2025)
+
+**L'idée géniale** : Implémenter la rétro-propagation mais avec du texte au lieu de nombres.
+
+```python
+import textgrad as tg
+
+# Exactement comme PyTorch, mais avec du texte
+variable = tg.Variable("mon prompt initial", requires_grad=True)
+loss = tg.TextLoss("Évalue la qualité de ce prompt")
+
+# "Gradients textuels" = critique en langage naturel
+loss.backward()  # → "Le prompt manque de spécificité sur X..."
+optimizer.step()  # → applique la critique pour améliorer le prompt
+```
+
+**Force** : API familière pour les dev ML, `pip install textgrad`
+**Résultat** : Pousse GPT-3.5 proche des performances de GPT-4 sur le raisonnement
+
+---
+
+### 2.8 EvoPrompt — Algorithmes Évolutionnaires pour Prompts
+**Paper** : Guo et al., 2023 — [arXiv:2309.08532](https://arxiv.org/abs/2309.08532)
+
+Applique des algorithmes génétiques (GA) et de l'évolution différentielle (DE) aux prompts :
+- Population de prompts
+- Crossover : le LLM croise deux prompts parents en un enfant cohérent
+- Mutation : perturbation aléatoire
+- Sélection : fitness sur un dev set
+
+**Force** : Explore largement l'espace des solutions
+**Limite** : Coûteux en évaluations, besoin d'un dev set
+
+---
+
+### 2.9 Meta Prompting & Récursivité
+**Paper** : Suzgun & Kalai, 2023 — [arXiv:2311.11482](https://arxiv.org/abs/2311.11482)
+
+Au lieu de donner des exemples spécifiques, on donne un **template structurel de pensée** applicable à toute une catégorie de tâches.
+
+**Recursive Meta Prompting (RMP)** étend cela : le LLM génère des prompts, les évalue, accumule des stratégies d'édition, et raffine récursivement. Modélisé comme une **Writer Monad** — chaque itération transporte un log de transformations.
+
+**Résultat** : Qwen-72B avec un seul meta-prompt atteint 46.3% sur MATH (vs 42.5% pour GPT-4)
 
 ---
 
@@ -445,16 +534,18 @@ echo "=== MAEL terminé après $ITERATIONS itérations ==="
 ## 6. Feuille de Route
 
 ### Phase 0 — Maintenant (cette session)
-- [x] Recherche et méta-analyse
-- [x] Audit des outils disponibles
+- [x] Recherche et méta-analyse (11 techniques analysées)
+- [x] Audit des outils disponibles (12 outils testés)
 - [x] Architecture de la boucle MAEL
-- [ ] Créer la structure `.mael/` de base
+- [x] Créer la structure `.mael/` de base
+- [x] Script `mael-loop.sh` v0.1
+- [x] Templates : `CLAUDE.md`, `state.json`, `learnings.md`, etc.
 
-### Phase 1 — Boucle Simple (prochaine session)
-- [ ] Implémenter `mael-loop.sh` v0
-- [ ] Créer les templates : `CLAUDE.md`, `state.json`, `learnings.md`
+### Phase 1 — Première Boucle (prochaine session)
+- [ ] Remplir `state.json` avec des tâches concrètes
 - [ ] Tester sur une tâche simple (ex: "crée un script Python qui...")
 - [ ] Mesurer : nombre d'itérations, qualité, coût tokens
+- [ ] Ajuster les prompts de phase selon les résultats
 
 ### Phase 2 — Auto-Amélioration
 - [ ] Ajouter la phase MUTER
@@ -477,18 +568,33 @@ echo "=== MAEL terminé après $ITERATIONS itérations ==="
 - [OPRO: Optimization by PROmpting](https://arxiv.org/abs/2309.03409) — Yang et al. (DeepMind), 2023
 - [PromptBreeder: Self-Referential Self-Improvement](https://arxiv.org/abs/2309.16797) — Fernando et al. (DeepMind), 2023
 - [Self-Refine: Iterative Refinement with Self-Feedback](https://arxiv.org/abs/2303.17651) — Madaan et al., 2023
+- [GEPA: Reflective Prompt Evolution](https://arxiv.org/abs/2507.19457) — Agrawal et al., 2025 **(SOTA)**
+- [TextGrad: Automatic Differentiation via Text](https://arxiv.org/abs/2406.07496) — Yuksekgonul et al. (Stanford), 2024 — Publié dans *Nature* 2025
+- [EvoPrompt: Evolutionary Prompt Optimization](https://arxiv.org/abs/2309.08532) — Guo et al., 2023
+- [ProTeGi/APO: Automatic Prompt Optimization](https://aclanthology.org/2023.emnlp-main.494.pdf) — Pryzant et al., EMNLP 2023
+- [Meta Prompting for AI Systems](https://arxiv.org/abs/2311.11482) — Suzgun & Kalai, 2023
+- [STaR: Bootstrapping Reasoning With Reasoning](https://arxiv.org/abs/2203.14465) — Zelikman et al., 2022
+- [RISE: Recursive Introspection](https://proceedings.neurips.cc/paper_files/paper/2024/file/639d992f819c2b40387d4d5170b8ffd7-Paper-Conference.pdf) — NeurIPS 2024
 - [Efficient Prompting Methods for LLMs: A Survey](https://arxiv.org/html/2404.01077v2)
 
 ### Frameworks & outils
-- [DSPy — Stanford NLP](https://github.com/stanfordnlp/dspy) — Le framework de référence
+- [DSPy — Stanford NLP](https://github.com/stanfordnlp/dspy) — 16k+ stars, 160k downloads/mois
+- [TextGrad](https://github.com/zou-group/textgrad) — Gradients textuels, API PyTorch-like
+- [GEPA](https://github.com/gepa-ai/gepa) — SOTA prompt evolution via DSPy
+- [EvoPrompt](https://github.com/beeevita/EvoPrompt) — Algorithmes évolutionnaires
+- [AutoPrompt](https://github.com/Eladlev/AutoPrompt) — Calibration de prompts par intention
+- [PromptWizard (Microsoft)](https://github.com/microsoft/PromptWizard) — Auto-évolution par feedback
+- [Meta Prompting](https://github.com/meta-prompting/meta-prompting) — Templates structurels de pensée
+- [Awesome LLM Prompt Optimization](https://github.com/jxzhangjhu/Awesome-LLM-Prompt-Optimization) — Liste curatée complète
 - [DSPy Prompt Optimization Tutorial (2025)](https://www.pondhouse-data.com/blog/dspy-build-better-ai-systems-with-automated-prompt-optimization)
 - [Compounding Engineering (DSPy Agent)](https://dev.to/dan-startegicauto/compounding-engineering-turn-your-repo-into-a-self-improving-dspy-agent-1e99)
 
-### Implémentations pratiques
-- [Self-Improving Coding Agents — Addy Osmani](https://addyosmani.com/blog/self-improving-agents/)
+### Implémentations pratiques Claude Code
+- [Self-Improving Coding Agents — Addy Osmani](https://addyosmani.com/blog/self-improving-agents/) — Guide architectural complet
 - [Ralph Claude Code](https://github.com/frankbria/ralph-claude-code) — Boucle autonome avec détection de sortie
 - [Continuous Claude](https://github.com/AnandChowdhary/continuous-claude) — Boucle avec création automatique de PRs
 - [Self-Improving Claude Code Bootstrap Seed](https://gist.github.com/ChristopherA/fd2985551e765a86f4fbb24080263a2f) — CC-BY-4.0
+- [AutoResearch pour Claude Code](https://github.com/uditgoenka/autoresearch) — Pattern Karpathy : métrique → eval → itération
 - [Recursive Self-Improvement with Claude Code](https://medium.com/@davidroliver/recursive-self-improvement-building-a-self-improving-agent-with-claude-code-d2d2ae941282)
 - [Claude Code Loop: YOLO Mode](https://mfyz.com/claude-code-on-loop-autonomous-ai-coding/)
 
