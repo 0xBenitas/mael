@@ -365,6 +365,9 @@ def phase_mutate(iteration: int, dry_run: bool = False) -> int:
                 after=m.get("after", ""),
                 reason=m.get("reason", ""),
             )
+            # GÖDEL MACHINE: actually rewrite prompts.py for prompt mutations
+            if m.get("type") == "prompt" and m.get("after"):
+                _apply_live_mutation(m, iteration)
             _log(f"[MUTER] Applied mutation: {m['type']} → {m['target']}")
             applied += 1
         else:
@@ -372,6 +375,84 @@ def phase_mutate(iteration: int, dry_run: bool = False) -> int:
 
     _log_to_file(f"iter_{iteration}_4_mutate.log", mutate_data)
     return applied
+
+
+def _apply_live_mutation(mutation: dict, iteration: int) -> bool:
+    """Actually rewrite prompts.py — the Gödel Machine step.
+
+    Safety: backup before, run tests after, rollback on failure.
+    """
+    prompts_path = Path(__file__).parent / "prompts.py"
+    backup = prompts_path.read_text(encoding="utf-8")
+
+    target = mutation.get("target", "").upper()
+    new_content = mutation.get("after", "")
+    if not new_content or len(new_content) < 20:
+        return False
+
+    # Determine which prompt to mutate
+    var_name = None
+    if "AGIR" in target or "ACT" in target:
+        var_name = "PHASE_ACT"
+    elif "ÉVALUER" in target or "EVAL" in target:
+        var_name = "PHASE_EVALUATE"
+    elif "APPRENDRE" in target or "LEARN" in target:
+        var_name = "PHASE_LEARN"
+    elif "MUTER" in target or "MUTAT" in target:
+        var_name = "PHASE_MUTATE"
+
+    if not var_name:
+        _log(f"[GÖDEL] Cannot identify target prompt variable for '{target}'")
+        return False
+
+    _log(f"[GÖDEL] 🐍 Rewriting {var_name} in prompts.py...")
+
+    # Rewrite the variable in prompts.py
+    try:
+        import re
+        content = prompts_path.read_text(encoding="utf-8")
+
+        # Find the variable assignment (triple-quote string)
+        pattern = re.compile(
+            rf'({var_name}\s*=\s*""")(.*?)(""")',
+            re.DOTALL,
+        )
+        match = pattern.search(content)
+        if not match:
+            _log(f"[GÖDEL] Could not find {var_name} in prompts.py")
+            return False
+
+        # Replace content
+        new_file = content[:match.start(2)] + new_content + content[match.end(2):]
+        prompts_path.write_text(new_file, encoding="utf-8")
+
+        # Safety check: can we still import it?
+        result = subprocess.run(
+            ["python", "-c", f"from mael.prompts import {var_name}; print('OK')"],
+            capture_output=True, text=True, timeout=10,
+        )
+        if result.returncode != 0:
+            _log(f"[GÖDEL] ✗ Import failed after mutation — ROLLING BACK")
+            prompts_path.write_text(backup, encoding="utf-8")
+            return False
+
+        # Safety check: do tests still pass?
+        result = subprocess.run(
+            ["python", "-m", "pytest", "tests/", "-q", "--tb=no", "-x"],
+            capture_output=True, text=True, timeout=60,
+        )
+        if result.returncode != 0:
+            _log(f"[GÖDEL] ✗ Tests failed after mutation — ROLLING BACK")
+            prompts_path.write_text(backup, encoding="utf-8")
+            return False
+
+        _log(f"[GÖDEL] ✓ {var_name} rewritten successfully. Tests pass.")
+        return True
+
+    except Exception as e:
+        _log(f"[GÖDEL] ✗ Error during mutation: {e} — ROLLING BACK")
+        prompts_path.write_text(backup, encoding="utf-8")
+        return False
 
 
 # ── Helpers ──────────────────────────────────────────────────────────
