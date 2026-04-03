@@ -47,10 +47,34 @@
       "score": 75,
       "details": "Mock evaluation — task appears well-structured.",
       "timestamp": "2026-04-03T21:47:19.459910"
+    },
+    {
+      "iteration": 1,
+      "task_id": 1,
+      "verdict": "SUCCESS",
+      "score": 75,
+      "details": "Mock evaluation — task appears well-structured.",
+      "timestamp": "2026-04-03T21:58:35.489277"
+    },
+    {
+      "iteration": 2,
+      "task_id": 2,
+      "verdict": "SUCCESS",
+      "score": 75,
+      "details": "Mock evaluation — task appears well-structured.",
+      "timestamp": "2026-04-03T21:58:39.936183"
+    },
+    {
+      "iteration": 3,
+      "task_id": 3,
+      "verdict": "SUCCESS",
+      "score": 75,
+      "details": "Mock evaluation — task appears well-structured.",
+      "timestamp": "2026-04-03T21:58:44.340234"
     }
   ],
   "aggregate": {
-    "total_iterations": 6,
+    "total_iterations": 9,
     "success_rate": 1.0,
     "avg_score": 75.0,
     "mutations_applied": 0

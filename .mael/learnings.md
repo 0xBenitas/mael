@@ -54,3 +54,21 @@
 **Learning** : Task scored 75/100
 **Confiance** : haute
 **Utilisations** : 0
+
+### [2026-04-03] Iteration 1 — success_pattern
+**Contexte** : Task: Créer un utilitaire de résumé de texte
+**Learning** : Task scored 75/100
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 2 — success_pattern
+**Contexte** : Task: Écrire les tests pour l'utilitaire de résumé
+**Learning** : Task scored 75/100
+**Confiance** : haute
+**Utilisations** : 0
+
+### [2026-04-03] Iteration 3 — success_pattern
+**Contexte** : Task: Améliorer le résumé avec un scoring TF-IDF simplifié
+**Learning** : Task scored 75/100
+**Confiance** : haute
+**Utilisations** : 0

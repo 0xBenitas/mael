@@ -1,4 +1,12 @@
 {
-  "verdict": "SUCCESS",
-  "learnings_added": 1
+  "learnings": [
+    {
+      "category": "success_pattern",
+      "learning": "Task scored 75/100",
+      "confidence": "haute",
+      "reusable_for": "similar tasks"
+    }
+  ],
+  "patterns_seen_again": [],
+  "promote_to_claude_md": []
 }

@@ -113,9 +113,24 @@ def phase_act(state: dict, task: dict, iteration: int,
         from .llm import ask, FAST
         response = ask(prompt, system=SYSTEM_MAEL, model=FAST, max_tokens=4096)
 
+    # Execute: parse code blocks, write files, run commands
+    from .executor import execute_response
+    exec_result = execute_response(response)
+
+    if exec_result.files_written:
+        _log(f"[AGIR] Wrote {len(exec_result.files_written)} file(s): "
+             f"{', '.join(exec_result.files_written)}")
+    for cmd_r in exec_result.commands_run:
+        status = "OK" if cmd_r["success"] else "FAIL"
+        _log(f"[AGIR] Ran: {cmd_r['command']} → {status}")
+
     result = {
         "task_id": task["id"],
         "response": response,
+        "files_written": exec_result.files_written,
+        "commands": exec_result.commands_run,
+        "execution_success": exec_result.success,
+        "execution_errors": exec_result.errors,
         "timestamp": datetime.now().isoformat(),
     }
 
@@ -129,17 +144,28 @@ def phase_evaluate(state: dict, task: dict, act_result: dict,
     """Phase 2: ÉVALUER — Score the result with LLM + tests."""
     _log(f"[ÉVALUER] Evaluating task #{task['id']}")
 
-    # Try running tests if available
+    # Run tests + gather execution info
     test_output = _run_tests()
     metrics = load_metrics()
     trend = get_trend()
+
+    # Include execution results in evaluation context
+    exec_info = ""
+    if act_result.get("files_written"):
+        exec_info += f"Files written: {', '.join(act_result['files_written'])}\n"
+    if act_result.get("execution_errors"):
+        exec_info += f"Execution errors: {'; '.join(act_result['execution_errors'])}\n"
+    for cmd in act_result.get("commands", []):
+        exec_info += f"Command '{cmd['command']}': {'OK' if cmd['success'] else 'FAIL'}\n"
+        if cmd.get("stdout"):
+            exec_info += f"  stdout: {cmd['stdout'][:500]}\n"
 
     prompt = PHASE_EVALUATE.format(
         iteration=iteration,
         task_id=task["id"],
         task_title=task["title"],
         task_acceptance=task.get("acceptance", "N/A"),
-        act_result=act_result["response"][:3000],
+        act_result=act_result["response"][:2000] + "\n\n## Execution Results\n" + exec_info,
         test_output=test_output[:1000] if test_output else "(no tests run)",
         avg_score=metrics["aggregate"].get("avg_score", 0),
         trend=trend.get("direction", "no data"),

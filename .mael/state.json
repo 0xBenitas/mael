@@ -1,60 +1,36 @@
 {
-  "version": "0.2.0",
-  "status": "all_complete",
-  "current_iteration": 1,
+  "version": "0.3.0",
+  "status": "running",
+  "current_iteration": 0,
   "tasks": [
     {
       "id": 1,
-      "title": "Créer le moteur Python de la boucle MAEL",
-      "description": "Moteur v0.2 avec intégration LLM multi-modèle, prompts structurés, et mode dry-run.",
-      "status": "completed",
-      "priority": "critical",
-      "acceptance": "Le moteur tourne en dry-run et avec l'API Claude."
+      "title": "Créer un utilitaire de résumé de texte",
+      "description": "Créer un fichier tools/summarize.py contenant une fonction summarize(text, max_sentences=3) qui extrait les N phrases les plus importantes d'un texte en utilisant une heuristique simple (longueur de phrase + mots-clés). Inclure un if __name__ == '__main__' pour tester.",
+      "status": "pending",
+      "priority": "high",
+      "acceptance": "Le fichier existe, la fonction est importable, et elle retourne un résumé plus court que l'original."
     },
     {
       "id": 2,
-      "title": "Implémenter le module Self-Refine pour MAEL",
-      "description": "Module selfrefine.py avec boucle generate→critique→refine.",
-      "status": "completed",
+      "title": "Écrire les tests pour l'utilitaire de résumé",
+      "description": "Créer tests/test_summarize.py avec au moins 4 tests : texte vide, texte court (< max_sentences), texte long, et texte avec max_sentences=1. Utiliser pytest.",
+      "status": "pending",
       "priority": "high",
-      "acceptance": "Le module accepte un prompt initial et retourne un prompt amélioré avec score."
+      "acceptance": "Tous les tests passent avec pytest. Couverture des cas limites."
     },
     {
       "id": 3,
-      "title": "Créer le système de mémoire persistante",
-      "description": "Module memory.py avec learnings, metrics, mutations, et promotion vers CLAUDE.md.",
-      "status": "completed",
-      "priority": "high",
-      "acceptance": "Le module lit/écrit les fichiers de mémoire et promeut les learnings récurrents."
-    },
-    {
-      "id": 4,
-      "title": "Ajouter le module de mutation Ouroboros",
-      "description": "Module mutator.py + prompts.py avec analyse de performance et mutations méta-niveau.",
-      "status": "completed",
+      "title": "Améliorer le résumé avec un scoring TF-IDF simplifié",
+      "description": "Modifier tools/summarize.py pour scorer les phrases par fréquence de mots (TF simple). Les phrases contenant les mots les plus fréquents du texte sont priorisées. Pas de dépendances externes.",
+      "status": "pending",
       "priority": "medium",
-      "acceptance": "Le module produit des mutations documentées et modifie les prompts de phase."
-    },
-    {
-      "id": 5,
-      "title": "Intégration LLM multi-modèle",
-      "description": "Module llm.py avec Haiku (routine) et Sonnet (mutations). Estimation de coûts.",
-      "status": "completed",
-      "priority": "critical",
-      "acceptance": "Le module se connecte à l'API Anthropic et gère le tiering de modèles."
-    },
-    {
-      "id": 6,
-      "title": "Tests unitaires et intégration v0.2",
-      "description": "Tests complets : state, memory, selfrefine, mutator, llm, engine (dry-run).",
-      "status": "completed",
-      "priority": "high",
-      "acceptance": "Tous les tests passent. Le moteur dry-run complète une boucle de 2+ itérations."
+      "acceptance": "La fonction produit de meilleurs résumés. Les tests existants passent toujours."
     }
   ],
   "meta": {
     "created": "2026-04-03",
     "description": "MAEL — Méta-Amélioration Évolutive en Ligne",
-    "goal": "Boucle auto-améliorante avec vrai cerveau LLM (Haiku + Sonnet)"
+    "goal": "Première vraie boucle : créer, tester, et améliorer un outil — piloté par le LLM."
   }
 }
