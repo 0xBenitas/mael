@@ -1,8 +1,114 @@
 {
   "version": "1.0.0",
   "status": "running",
-  "current_iteration": 0,
-  "tasks": [],
+  "current_iteration": 4,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Réparer les tests existants pour avoir une base verte",
+      "description": "Corriger les imports et dépendances dans tests/test_engine.py, tests/test_autonomy.py et tests/test_executor.py pour que pytest passe sans erreur. Focus sur l'exécutabilité avant la couverture.",
+      "acceptance": "pytest tests/ passe avec au moins 80% des tests verts, aucune erreur d'import ou de syntaxe",
+      "status": "decomposed",
+      "priority": "critical"
+    },
+    {
+      "id": 2,
+      "title": "Créer un test d'intégration end-to-end simple",
+      "description": "Ajouter tests/test_integration.py qui teste le flux complet : charger l'état, exécuter une tâche simple (ex: créer un fichier), vérifier le résultat. Une seule fonction de test avec assertions claires.",
+      "acceptance": "Un test d'intégration qui passe, vérifie la création d'un fichier réel, et valide que MAEL peut accomplir une tâche basique",
+      "status": "decomposed",
+      "priority": "high"
+    },
+    {
+      "id": 3,
+      "title": "Améliorer la robustesse du parsing JSON dans engine.py",
+      "description": "Ajouter une fonction parse_json_response() dans mael/engine.py qui gère les cas d'erreur (JSON malformé, réponses partielles, markdown wrapping). Remplacer les json.loads() directs.",
+      "acceptance": "Fonction parse_json_response() avec gestion d'erreurs, tests unitaires qui passent, et utilisation dans au moins 2 endroits du code",
+      "status": "decomposed",
+      "priority": "medium"
+    },
+    {
+      "id": 4,
+      "title": "Réparer les imports dans tests/test_engine.py",
+      "description": "Corriger tous les imports et dépendances manquantes dans tests/test_engine.py. Vérifier que le fichier s'importe sans erreur et que les fixtures pytest sont correctement déclarées. Fichier cible: tests/test_engine.py (max 100 lignes).",
+      "acceptance": "pytest tests/test_engine.py --collect-only réussit sans ImportError ni erreur de dépendance",
+      "status": "completed",
+      "priority": "critical",
+      "parent_id": 1
+    },
+    {
+      "id": 5,
+      "title": "Réparer les imports dans tests/test_autonomy.py",
+      "description": "Corriger tous les imports et dépendances manquantes dans tests/test_autonomy.py. Assurer la cohérence avec les corrections de test_engine.py. Fichier cible: tests/test_autonomy.py (max 100 lignes).",
+      "acceptance": "pytest tests/test_autonomy.py --collect-only réussit sans ImportError ni erreur de dépendance",
+      "status": "completed",
+      "priority": "critical",
+      "parent_id": 1
+    },
+    {
+      "id": 6,
+      "title": "Réparer les imports dans tests/test_executor.py",
+      "description": "Corriger tous les imports et dépendances manquantes dans tests/test_executor.py. Valider la cohérence avec les deux fichiers précédents. Fichier cible: tests/test_executor.py (max 100 lignes).",
+      "acceptance": "pytest tests/test_executor.py --collect-only réussit sans ImportError ni erreur de dépendance",
+      "status": "completed",
+      "priority": "critical",
+      "parent_id": 1
+    },
+    {
+      "id": 7,
+      "title": "Créer la structure de base du test",
+      "description": "Créer tests/test_integration.py avec imports, fixtures pytest, et une fonction de test vide. Fichier: tests/test_integration.py (max 30 lignes)",
+      "acceptance": "Le fichier existe, pytest le découvre, aucune erreur d'import",
+      "status": "completed",
+      "priority": "high",
+      "parent_id": 2
+    },
+    {
+      "id": 8,
+      "title": "Implémenter le chargement d'état",
+      "description": "Ajouter une fixture pytest qui charge l'état initial (mock ou fichier réel). Tester que l'état est chargé correctement. Fichier: tests/test_integration.py (ajouter ~20 lignes)",
+      "acceptance": "La fixture retourne un objet d'état valide, assertion simple sur un attribut",
+      "status": "in_progress",
+      "priority": "high",
+      "parent_id": 2
+    },
+    {
+      "id": 9,
+      "title": "Tester le flux complet : créer fichier et vérifier",
+      "description": "Ajouter une fonction test_create_file_task() qui exécute une tâche simple (créer un fichier), puis vérifie son existence. Fichier: tests/test_integration.py (ajouter ~25 lignes)",
+      "acceptance": "Le test passe, le fichier est créé et détecté, assertions claires sur le résultat",
+      "status": "pending",
+      "priority": "high",
+      "parent_id": 2
+    },
+    {
+      "id": 10,
+      "title": "Créer parse_json_response() avec gestion d'erreurs basique",
+      "description": "Ajouter dans mael/engine.py une fonction parse_json_response(text: str) -> dict qui : (1) tente json.loads(), (2) capture JSONDecodeError et retourne {'error': 'invalid_json', 'raw': text}, (3) retourne le dict parsé sinon. Max 15 lignes.",
+      "acceptance": "Fonction existe, gère JSONDecodeError, tests unitaires passent (test_parse_json_response_valid, test_parse_json_response_invalid)",
+      "status": "pending",
+      "priority": "medium",
+      "parent_id": 3
+    },
+    {
+      "id": 11,
+      "title": "Ajouter détection de réponses partielles et markdown wrapping",
+      "description": "Étendre parse_json_response() dans mael/engine.py pour : (1) détecter et extraire JSON entre ```json et ```, (2) détecter réponses tronquées (pas de } final), (3) retourner {'error': 'incomplete'} si détecté. Max 25 lignes.",
+      "acceptance": "Fonction gère markdown wrapping et réponses partielles, 3 tests unitaires passent (test_markdown_wrapped, test_incomplete_response, test_nested_json)",
+      "status": "pending",
+      "priority": "medium",
+      "parent_id": 3
+    },
+    {
+      "id": 12,
+      "title": "Remplacer 3 json.loads() critiques par parse_json_response()",
+      "description": "Dans mael/engine.py, identifier et remplacer les 3 premiers appels json.loads() directs par parse_json_response(). Ajouter logs d'erreur. Créer test d'intégration simple.",
+      "acceptance": "3 json.loads() remplacés, test d'intégration passe, aucune régression sur tests existants",
+      "status": "pending",
+      "priority": "medium",
+      "parent_id": 3
+    }
+  ],
   "meta": {
     "created": "2026-04-03",
     "description": "MAEL v1.0 — Gödel Machine active",

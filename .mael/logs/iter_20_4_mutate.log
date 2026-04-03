@@ -1,0 +1,24 @@
+{
+  "analysis": "Le système montre une amélioration constante (+25 points sur 5 itérations) mais plafonne à 80/100. Les mutations récentes sur la structure et les critères semblent porter leurs fruits. Le principal goulot d'étranglement semble être dans la phase AGIR qui manque de guidance méthodologique pour atteindre l'excellence.",
+  "health": "healthy",
+  "mutations": [
+    {
+      "type": "prompt",
+      "target": "Phase AGIR",
+      "before_summary": "Instructions basiques avec approche libre, pas de méthodologie imposée",
+      "after": "Phase AGIR — Itération {iteration}\n\n## Tâche\n{task_title}: {task_description}\nCritères: {task_acceptance_criteria}\n\n## Méthodologie MAEL\n1. **ANALYSER** : Décomposer la tâche en sous-problèmes\n2. **CONCEVOIR** : Définir l'architecture et les interfaces\n3. **IMPLÉMENTER** : Coder avec gestion d'erreurs et tests\n4. **VALIDER** : Vérifier chaque critère d'acceptation\n5. **DOCUMENTER** : Expliquer les choix et l'utilisation\n\n## Standards qualité\n- Code défensif avec validation des entrées\n- Gestion explicite des cas d'erreur\n- Tests unitaires pour les fonctions critiques\n- Documentation claire des APIs\n- Respect strict des spécifications\n\n## Livrables attendus\n- Code source complet et fonctionnel\n- Tests de validation\n- Documentation d'utilisation\n- Justification des choix techniques\n\nRéponds en JSON avec structure : {\"solution\": \"...\", \"tests\": \"...\", \"documentation\": \"...\", \"rationale\": \"...\"}",
+      "reason": "Le prompt actuel ne guide pas suffisamment vers l'excellence. Une méthodologie structurée et des standards explicites devraient pousser les scores vers 85+",
+      "expected_impact": "Amélioration de 10-15 points en moyenne, meilleure consistance dans la qualité des livrables",
+      "confidence": 0.8
+    },
+    {
+      "type": "heuristic",
+      "target": "Seuil de mutation",
+      "before_summary": "Mutations déclenchées après stagnation ou dégradation",
+      "after": "Déclencher une mutation si : score < 85 pendant 2 itérations consécutives OU amélioration < 5 points sur 3 itérations OU score en baisse sur 2 itérations",
+      "reason": "Le système s'améliore mais n'atteint pas l'excellence (85+). Il faut être plus proactif dans les mutations pour éviter les plateaux",
+      "expected_impact": "Mutations plus fréquentes et ciblées, évitement des stagnations prolongées",
+      "confidence": 0.7
+    }
+  ]
+}

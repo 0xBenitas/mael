@@ -1,0 +1,11 @@
+{
+  "name": "pytest_collect_validation",
+  "category": "utility",
+  "description": "Commande de validation rapide de la structure de test sans exécution",
+  "code": "# Run before executing tests to validate structure\n# pytest --collect-only tests/\n# Exit code 0 = all imports resolved, structure valid\n# Exit code 1 = ImportError or fixture issues detected",
+  "score": 90,
+  "source_iteration": 7,
+  "created": "2026-04-03T23:16:54.061309",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

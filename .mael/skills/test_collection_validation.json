@@ -1,0 +1,11 @@
+{
+  "name": "test_collection_validation",
+  "category": "utility",
+  "description": "Procédure de validation de la structure de tests avant exécution",
+  "code": "# Commande à exécuter avant pytest\n# pytest --collect-only tests/test_engine.py\n# Vérifier que le nombre de tests collectés == nombre attendu\n# Si 0 items, problème d'infrastructure (import, nommage, structure)",
+  "score": 94,
+  "source_iteration": 4,
+  "created": "2026-04-03T23:15:08.114164",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

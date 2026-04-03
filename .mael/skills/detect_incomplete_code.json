@@ -1,0 +1,11 @@
+{
+  "name": "detect_incomplete_code",
+  "category": "utility",
+  "description": "Détecte les fichiers tronqués en comptant les statements critiques",
+  "code": "import subprocess\nresult = subprocess.run(['grep', '-c', 'return\\|assert', 'conftest.py'], capture_output=True)\nif int(result.stdout) < 3:\n    raise ValueError('Code appears incomplete: too few return/assert statements')",
+  "score": 55,
+  "source_iteration": 16,
+  "created": "2026-04-03T23:22:29.192625",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

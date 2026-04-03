@@ -1,32 +1,32 @@
 {
-  "analysis": "Le système montre une stagnation après amélioration initiale. Scores bloqués entre 43-45, indiquant que les mutations drastiques (reset, mode urgence) n'ont pas eu l'effet escompté. Le processus semble avoir atteint un plateau de performance sous-optimal. Les mutations précédentes étaient trop radicales et ont peut-être supprimé des éléments utiles.",
+  "analysis": "Le système montre une dégradation claire après l'itération 7 (score 90). Les mutations récentes (#18, #19) n'ont pas encore montré d'effet positif. La stagnation à 70 sur les 2 dernières itérations suggère un plateau. Les mutations précédentes ont complexifié le système sans améliorer les performances. Il faut simplifier et revenir aux fondamentaux.",
   "health": "degrading",
   "mutations": [
     {
       "type": "heuristic",
-      "target": "Seuil de reset après échecs",
-      "before_summary": "Reset après 5 FAIL consécutifs avec purge totale",
-      "after": "Reset progressif : après 3 FAIL consécutifs, revenir aux 3 dernières leçons les plus efficaces uniquement. Après 5 FAIL, reset complet mais conserver les heuristiques de base.",
-      "reason": "Le reset total détruit l'apprentissage utile. Un reset progressif préserve les acquis tout en corrigeant les dérives.",
-      "expected_impact": "Éviter la perte totale de connaissances utiles lors des corrections",
+      "target": "Seuil de succès dynamique",
+      "before_summary": "Seuil fixe à 75 (ou 50 en mode critique)",
+      "after": "Seuil adaptatif basé sur la moyenne mobile des 3 dernières itérations + 5 points. Minimum 60, maximum 80.",
+      "reason": "Un seuil fixe ne s'adapte pas aux capacités réelles du système. Un seuil adaptatif permet une progression continue.",
+      "expected_impact": "Réduction des échecs artificiels, progression plus fluide",
       "confidence": 0.8
     },
     {
       "type": "prompt",
-      "target": "Phase ÉVALUER",
-      "before_summary": "Évaluation standard avec critères fixes",
-      "after": "Phase ÉVALUER — Itération {iteration} — DIAGNOSTIC APPROFONDI\n\nTu évalues la performance de MAEL avec analyse multi-niveaux :\n\n1. CONFORMITÉ (0-30) : Répond-il aux critères de base ?\n2. QUALITÉ (0-40) : Niveau d'exécution technique\n3. EFFICACITÉ (0-30) : Optimisation et pertinence des choix\n\nPour chaque dimension, identifie :\n- Ce qui fonctionne bien\n- Les défauts spécifiques\n- Les améliorations prioritaires\n\nScore final = somme des 3 dimensions",
-      "reason": "L'évaluation actuelle manque de granularité pour identifier les causes précises des scores moyens",
-      "expected_impact": "Diagnostic plus précis permettant des corrections ciblées",
+      "target": "Phase AGIR",
+      "before_summary": "Prompt complexe avec multiples instructions",
+      "after": "Phase AGIR — Itération {iteration}\n\n## Tâche\n{task_title}: {task_description}\nCritères: {task_acceptance_criteria}\n\n## Instructions\nRésous cette tâche de manière directe et efficace. Concentre-toi sur la qualité plutôt que la quantité. Fournis une solution complète et testable.\n\nRéponds en JSON strict avec 'solution' et 'explanation'.",
+      "reason": "Simplifier le prompt pour réduire la confusion et améliorer la focus sur l'essentiel",
+      "expected_impact": "Amélioration de la qualité des solutions, réduction des erreurs de format",
       "confidence": 0.7
     },
     {
-      "type": "structure",
-      "target": "Cycle d'apprentissage",
-      "before_summary": "Apprentissage après chaque itération",
-      "after": "Apprentissage adaptatif : après FAIL, analyse immédiate des causes. Après SUCCESS, consolidation des bonnes pratiques. Après 3 itérations similaires, méta-analyse des patterns récurrents.",
-      "reason": "L'apprentissage uniforme ne s'adapte pas au contexte de performance",
-      "expected_impact": "Apprentissage plus ciblé et efficace selon les situations",
+      "type": "criteria",
+      "target": "Système de scoring",
+      "before_summary": "Sous-scores détaillés complexes (Complétude, Qualité technique, etc.)",
+      "after": "Score unique de 0 à 100 basé sur 3 critères équilibrés : Fonctionnalité (40%), Qualité du code (35%), Respect des critères (25%)",
+      "reason": "Le système de sous-scores complexe peut créer de la confusion. Un scoring simplifié mais structuré est plus efficace.",
+      "expected_impact": "Évaluations plus cohérentes, réduction de la variabilité des scores",
       "confidence": 0.6
     }
   ]

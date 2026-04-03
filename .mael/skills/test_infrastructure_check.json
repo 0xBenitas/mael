@@ -1,0 +1,11 @@
+{
+  "name": "test_infrastructure_check",
+  "category": "test",
+  "description": "Test d'infrastructure pour valider que le module (stub ou réel) a les méthodes attendues.",
+  "code": "def test_import_successful():\n    \"\"\"Vérifier que l'import fonctionne (stub ou vrai module).\"\"\"\n    assert AutonomyEngine is not None\n    assert hasattr(AutonomyEngine, 'make_decision')\n    assert hasattr(AutonomyEngine, 'update_context')",
+  "score": 93,
+  "source_iteration": 5,
+  "created": "2026-04-03T23:15:46.077060",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

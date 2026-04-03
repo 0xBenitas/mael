@@ -1,0 +1,11 @@
+{
+  "name": "fixture_with_inline_assertion",
+  "category": "pattern",
+  "description": "Fixture qui valide son contrat avant de retourner, garantissant que l'état chargé est valide",
+  "code": "@pytest.fixture\ndef initial_state(state_manager):\n    state = state_manager.load_state()\n    assert state is not None, 'State must be loaded'\n    assert hasattr(state, 'config'), 'State must have config attribute'\n    return state",
+  "score": 55,
+  "source_iteration": 16,
+  "created": "2026-04-03T23:22:29.192468",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

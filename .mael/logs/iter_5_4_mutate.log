@@ -1,33 +1,24 @@
 {
-  "analysis": "Le système est en échec critique avec 4 échecs consécutifs après l'itération 1. Les mutations récentes (#13 et #14) n'ont pas encore été évaluées mais la tendance reste négative. Le problème semble structurel : les phases sont trop isolées et manquent de cohérence. La phase AGIR ne bénéficie pas des apprentissages précédents, créant un cycle de répétition des mêmes erreurs.",
-  "health": "critical",
+  "analysis": "Le système montre une amélioration spectaculaire après les mutations critiques (scores passés de 22 à 94-93). Les mutations #16 et #17 semblent efficaces : le mode critique avec exploration agressive et l'évaluation graduée ont permis de sortir du blocage. Cependant, le léger recul de 94 à 93 suggère une possible instabilité. Il faut consolider ces gains et affiner le système pour maintenir la performance.",
+  "health": "healthy",
   "mutations": [
     {
-      "type": "structure",
-      "target": "Architecture du processus",
-      "before_summary": "Phases séquentielles isolées : AGIR → ÉVALUER → APPRENDRE → MUTER",
-      "after": "Phase AGIR enrichie avec contexte d'apprentissage : injection automatique des 3 derniers échecs et leurs causes dans le prompt AGIR. Format : 'Échecs récents à éviter : [liste des erreurs communes]'",
-      "reason": "Les phases n'apprennent pas les unes des autres, répétant les mêmes erreurs",
-      "expected_impact": "Réduction des erreurs récurrentes par apprentissage contextuel",
+      "type": "heuristic",
+      "target": "Sortie du mode critique",
+      "before_summary": "Retour au mode normal après 2 succès consécutifs",
+      "after": "Retour au mode normal après 3 succès consécutifs avec score moyen > 85. Maintien du seuil de succès à 50 pendant 2 itérations supplémentaires après sortie du mode critique.",
+      "reason": "Éviter un retour prématuré au mode normal qui pourrait faire rechuter le système",
+      "expected_impact": "Stabilisation des performances élevées",
       "confidence": 0.8
     },
     {
-      "type": "heuristic",
-      "target": "Seuil de mutation critique",
-      "before_summary": "Mutation si score < 60 OU variance > 20 OU 2 échecs consécutifs",
-      "after": "En mode critique (3+ échecs consécutifs) : mutation forcée à chaque itération + reset des heuristiques précédentes. Retour au mode normal après 2 succès consécutifs.",
-      "reason": "Le système est bloqué dans un état d'échec et a besoin d'exploration agressive",
-      "expected_impact": "Sortie du cycle d'échec par exploration intensive",
-      "confidence": 0.7
-    },
-    {
       "type": "criteria",
-      "target": "Métriques d'évaluation",
-      "before_summary": "Évaluation binaire PASS/FAIL avec score numérique",
-      "after": "Évaluation graduée : EXCELLENT (90-100), GOOD (70-89), ACCEPTABLE (50-69), POOR (30-49), FAIL (0-29). Seuil de succès abaissé à 50 temporairement en mode critique.",
-      "reason": "L'évaluation trop stricte peut masquer les progrès partiels et décourager l'amélioration",
-      "expected_impact": "Meilleure granularité pour détecter les améliorations progressives",
-      "confidence": 0.6
+      "target": "Granularité des scores",
+      "before_summary": "Évaluation graduée avec 5 niveaux (EXCELLENT, GOOD, ACCEPTABLE, POOR, FAIL)",
+      "after": "Ajout de sous-scores détaillés : Complétude (0-30), Qualité technique (0-30), Respect des critères (0-25), Innovation/Efficacité (0-15). Score total = somme des sous-scores.",
+      "reason": "Permettre un diagnostic plus précis des forces/faiblesses pour guider les futures mutations",
+      "expected_impact": "Feedback plus actionnable pour l'amélioration continue",
+      "confidence": 0.7
     }
   ]
 }

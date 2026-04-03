@@ -1,0 +1,11 @@
+{
+  "name": "fixture_reuse_conftest",
+  "category": "pattern",
+  "description": "Déclarer les fixtures réutilisables dans conftest.py pour éviter la duplication et garantir la cohérence",
+  "code": "@pytest.fixture\ndef execution_engine():\n    \"\"\"Shared fixture for ExecutionEngine across all test files.\"\"\"\n    return ExecutionEngine()\n\n@pytest.fixture\ndef sample_task():\n    \"\"\"Shared fixture for sample task data.\"\"\"\n    return {\"id\": \"task_1\", \"name\": \"test_task\", \"priority\": 1}",
+  "score": 85,
+  "source_iteration": 6,
+  "created": "2026-04-03T23:16:28.265614",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

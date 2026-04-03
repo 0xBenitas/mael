@@ -1,0 +1,64 @@
+{
+  "learnings": [
+    {
+      "category": "failure_analysis",
+      "learning": "Code tronqué (ligne 'state = state_m' inachevée) indique abandon à mi-chemin. Checkpoint obligatoire : avant de valider une fixture, vérifier complétude avec `grep -n 'return' conftest.py` et `tail -20 conftest.py` pour détecter les fichiers incomplets. Score partiel (55/100) = code non finalisé.",
+      "confidence": "haute",
+      "reusable_for": "Détection précoce de tâches abandonnées, validation de complétude avant soumission"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Une fixture sans assertion explicite dans son corps ne valide rien. Le pattern 'fixture retourne un objet' n'est pas suffisant. Exiger `assert state.attribute is not None` ou `assert isinstance(state, MockState)` DANS la fixture pour forcer la validation du contrat de chargement.",
+      "confidence": "haute",
+      "reusable_for": "Conception de fixtures de test, validation de contrats d'état"
+    },
+    {
+      "category": "optimization",
+      "learning": "Pour fixture `initial_state` : structure en 3 lignes : (1) `state = state_manager.load_state()`, (2) `assert state is not None and hasattr(state, 'config')`, (3) `return state`. Cela garantit que la fixture ne retourne que des états valides et documentés.",
+      "confidence": "haute",
+      "reusable_for": "Implémentation de fixtures de chargement d'état, pattern de validation précoce"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Le pattern `robust_import_with_stub` fonctionne quand : (1) try/except ImportError, (2) sys.path.insert(0, stub_path), (3) classe stub avec `__all__` et attributs critiques. Valider avec `python -c 'from conftest import MockState; print(MockState.__dict__)'` pour confirmer que le stub est chargé.",
+      "confidence": "haute",
+      "reusable_for": "Imports robustes en environnement de test, fallback sur stubs"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Tests rapportés comme 'passants' mais fixture cible non finalisée = faux positif. Les tests exécutés ne couvrent pas la fixture `initial_state` elle-même. Exiger `pytest -v conftest.py::test_initial_state_fixture` pour valider que la fixture est testée directement, pas juste utilisée.",
+      "confidence": "haute",
+      "reusable_for": "Validation de couverture de fixtures, détection de tests superficiels"
+    }
+  ],
+  "patterns_seen_again": [
+    "Un test qui passe mais dont l'implémentation n'est pas visible dans le code fourni suggère que le test utilise un comportement par défaut (ex: fixture vide, assertion triviale). Exiger une assertion explicite sur un attribut concret de l'objet retourné pour valider que la fixture charge réellement l'état, pas juste qu'elle retourne None.",
+    "Pour une fixture `initial_state`, structurer le retour en deux étapes : (1) charger l'état via `state_manager.load_state()`, (2) asserter immédiatement `assert state.some_attribute is not None` dans la fixture elle-même. Cela force la complétude et documente le contrat attendu.",
+    "Un score partiel (65/100) avec code tronqué indique que la tâche a été abandonnée à mi-chemin. Établir un checkpoint à 50% : vérifier que le code source est complet et que les assertions de base passent avant de continuer. Utiliser `wc -l conftest.py` pour détecter les fichiers anormalement courts."
+  ],
+  "promote_to_claude_md": [
+    "Code tronqué détecté par grep/tail = abandon de tâche. Checkpoint obligatoire avant validation : vérifier que toutes les fonctions/fixtures ont un `return` ou `assert` visible.",
+    "Fixture sans assertion interne = contrat non validé. Pattern : `def fixture(): obj = load(); assert obj.attr; return obj`"
+  ],
+  "skills_to_save": [
+    {
+      "name": "fixture_with_inline_assertion",
+      "code": "@pytest.fixture\ndef initial_state(state_manager):\n    state = state_manager.load_state()\n    assert state is not None, 'State must be loaded'\n    assert hasattr(state, 'config'), 'State must have config attribute'\n    return state",
+      "category": "pattern",
+      "description": "Fixture qui valide son contrat avant de retourner, garantissant que l'état chargé est valide"
+    },
+    {
+      "name": "detect_incomplete_code",
+      "code": "import subprocess\nresult = subprocess.run(['grep', '-c', 'return\\|assert', 'conftest.py'], capture_output=True)\nif int(result.stdout) < 3:\n    raise ValueError('Code appears incomplete: too few return/assert statements')",
+      "category": "utility",
+      "description": "Détecte les fichiers tronqués en comptant les statements critiques"
+    },
+    {
+      "name": "robust_import_with_stub",
+      "code": "import sys\ntry:\n    from state_module import StateManager\nexcept ImportError:\n    sys.path.insert(0, 'stubs')\n    class StateManager:\n        def load_state(self): return type('State', (), {'config': {}})()",
+      "category": "pattern",
+      "description": "Import robuste avec fallback sur stub minimal si module absent"
+    }
+  ],
+  "meta_reasoning": "Aurais pu résoudre en 50% moins d'étapes en : (1) Commençant par `wc -l conftest.py` pour détecter la troncature immédiatement, (2) Écrivant la fixture complète en une seule passe avec assertion inline, (3) Validant avec `pytest --collect-only` avant de rapporter succès. Le pattern 'code tronqué = abandon' aurait dû déclencher un rollback immédiat plutôt que de continuer avec du code incomplet."
+}

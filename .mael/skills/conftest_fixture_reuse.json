@@ -1,0 +1,11 @@
+{
+  "name": "conftest_fixture_reuse",
+  "category": "pattern",
+  "description": "Pattern de réutilisation de fixtures via conftest.py pour éviter la duplication",
+  "code": "# conftest.py\n@pytest.fixture\ndef execution_engine():\n    return ExecutionEngine()\n\n# test_integration.py\ndef test_something(execution_engine):\n    # Réutiliser la fixture définie une seule fois\n    assert execution_engine is not None",
+  "score": 90,
+  "source_iteration": 7,
+  "created": "2026-04-03T23:16:54.061405",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

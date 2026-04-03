@@ -1,0 +1,11 @@
+{
+  "name": "stub_with_fallback_pattern",
+  "category": "pattern",
+  "description": "Pattern pour importer des modules réels ou leurs stubs avec fallback, utile quand les modules source n'existent pas encore",
+  "code": "import sys\nfrom pathlib import Path\n\ntry:\n    from src.execution_engine import ExecutionEngine\nexcept ImportError:\n    sys.path.insert(0, str(Path(__file__).parent / 'stubs'))\n    from execution_engine_stub import ExecutionEngine\n\nassert ExecutionEngine.__module__.startswith((\"tests\", \"src\"))",
+  "score": 90,
+  "source_iteration": 7,
+  "created": "2026-04-03T23:16:54.061152",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

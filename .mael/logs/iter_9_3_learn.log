@@ -1,44 +1,5 @@
 {
-  "learnings": [
-    {
-      "category": "failure_analysis",
-      "learning": "Un score partiel (45/100) avec tests syntaxiquement valides mais non exécutables révèle une séparation claire entre génération de code et intégration environnementale. Toujours diagnostiquer en trois étapes : (1) syntaxe Python valide, (2) imports résolus, (3) exécution réelle. Échouer à l'étape 2 signifie que le chemin d'import ne correspond pas à la structure réelle du projet.",
-      "confidence": "haute",
-      "reusable_for": "Tout test généré : valider immédiatement que les imports correspondent à la structure réelle avec 'find . -name \"*.py\"' et 'python -c \"import <module>\"' avant de déclarer succès."
-    },
-    {
-      "category": "gotcha",
-      "learning": "Les fichiers tronqués (ici 'def test_max_' incomplet) peuvent masquer des problèmes d'import qui ne se manifestent qu'à l'exécution. Vérifier la complétude avec 'tail -20 <file>' ET 'python -m py_compile <file>' immédiatement après génération. Un fichier syntaxiquement valide mais tronqué peut passer la compilation mais échouer à l'import.",
-      "confidence": "haute",
-      "reusable_for": "Validation post-génération de tout fichier Python : ajouter une étape de vérification de complétude (dernière ligne non tronquée, pas de 'def' ou 'class' ouvert sans fermeture)."
-    },
-    {
-      "category": "optimization",
-      "learning": "Avant de générer des tests, valider que le module à tester existe et est importable. Ajouter une étape de diagnostic préalable : 'python -c \"import tools.summarize; print(dir(tools.summarize))\"'. Cela évite de générer 7 cas de test corrects mais inutilisables.",
-      "confidence": "haute",
-      "reusable_for": "Toute génération de tests : commencer par vérifier que le module cible existe et est accessible via le chemin d'import prévu."
-    },
-    {
-      "category": "success_pattern",
-      "learning": "La structure logique des tests (4 classes, docstrings, assertions organisées) était correcte et réutilisable. Le problème n'était pas la conception mais l'environnement. Conserver cette structure pour les itérations futures : elle démontre une bonne compréhension de la couverture de test (cas vides, texte court/long, paramètres limites).",
-      "confidence": "haute",
-      "reusable_for": "Futures générations de tests : réutiliser le pattern de classes par fonctionnalité avec docstrings explicites, mais ajouter une validation d'environnement préalable."
-    },
-    {
-      "category": "failure_analysis",
-      "learning": "Un fichier tronqué à 'def test_max_' suggère une interruption lors de l'écriture ou une limite de buffer. Cela n'a pas été détecté car la validation s'est arrêtée à la syntaxe (fichier valide jusqu'à la troncature). Ajouter une vérification de cohérence : tous les 'def' doivent avoir un corps complet, pas de 'def' sans 'assert' ou 'pass'.",
-      "confidence": "haute",
-      "reusable_for": "Validation de fichiers générés : vérifier que chaque fonction/classe a un corps complet et non tronqué."
-    }
-  ],
-  "patterns_seen_again": [
-    "Les fichiers test tronqués (assertion coupée à 'assert len') peuvent résulter d'une interruption lors de l'écriture ou d'une limite de buffer. Toujours vérifier la complétude du fichier généré avec 'tail -5 <file>' et 'wc -l <file>' immédiatement après génération, avant validation.",
-    "La validation post-génération en trois étapes (syntaxe → collection → exécution) doit être obligatoire et atomique. Si une étape échoue, générer un rapport diagnostic détaillé (erreur exacte, ligne, contexte) AVANT de relancer la génération. Cela réduit les cycles d'itération.",
-    "La structure logique des tests (classes par fonctionnalité, docstrings, assertions organisées) était correcte. Les problèmes étaient environnementaux (import + fichier tronqué). Séparer la validation de la logique : réutiliser la même structure de génération mais ajouter une étape de diagnostic d'environnement préalable."
-  ],
-  "promote_to_claude_md": [
-    "Avant de générer des tests, valider que le module à tester existe et est importable via 'python -c \"import <module>\"'. Cela évite de générer des tests corrects mais inutilisables.",
-    "Validation post-génération obligatoire en trois étapes : (1) syntaxe Python valide, (2) imports résolus, (3) exécution réelle. Échouer à l'étape 2 signifie que le chemin d'import ne correspond pas à la structure réelle du projet.",
-    "Vérifier la complétude des fichiers générés avec 'tail -20 <file>' ET 'python -m py_compile <file>' immédiatement après génération. Un fichier syntaxiquement valide mais tronqué peut passer la compilation mais échouer à l'import."
-  ]
+  "learnings": [],
+  "patterns_seen_again": [],
+  "promote_to_claude_md": []
 }

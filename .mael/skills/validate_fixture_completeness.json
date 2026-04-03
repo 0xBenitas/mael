@@ -1,0 +1,11 @@
+{
+  "name": "validate_fixture_completeness",
+  "category": "test",
+  "description": "Test de validation que la fixture retourne un objet complètement initialisé",
+  "code": "def test_fixture_completeness(initial_state):\n    \"\"\"Validate that fixture returns fully initialized state.\"\"\"\n    assert initial_state is not None\n    assert hasattr(initial_state, 'version')\n    assert hasattr(initial_state, 'config')\n    assert initial_state.version != ''\n    assert len(initial_state.config) > 0",
+  "score": 65,
+  "source_iteration": 8,
+  "created": "2026-04-03T23:17:27.634335",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

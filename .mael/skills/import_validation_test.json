@@ -1,0 +1,11 @@
+{
+  "name": "import_validation_test",
+  "category": "test",
+  "description": "Valider que le stub ou le vrai module est utilisé, détectant les imports accidentels",
+  "code": "def test_import_successful():\n    \"\"\"Verify that ExecutionEngine is imported from correct module.\"\"\"\n    assert ExecutionEngine.__module__.startswith((\"tests\", \"src\")), \\\n        f\"ExecutionEngine imported from unexpected module: {ExecutionEngine.__module__}\"",
+  "score": 85,
+  "source_iteration": 6,
+  "created": "2026-04-03T23:16:28.265699",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

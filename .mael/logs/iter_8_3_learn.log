@@ -1,5 +1,63 @@
 {
-  "learnings": [],
-  "patterns_seen_again": [],
-  "promote_to_claude_md": []
+  "learnings": [
+    {
+      "category": "failure_analysis",
+      "learning": "Une fixture incomplète (code tronqué) qui passe les tests indique une déconnexion entre le code écrit et le code exécuté. Toujours valider que le code source complet est présent dans le fichier avant de déclarer succès. Utiliser `git diff` ou `cat conftest.py | tail -20` pour vérifier l'intégrité du fichier.",
+      "confidence": "haute",
+      "reusable_for": "Validation de complétude avant de clôturer une itération, détection de troncature accidentelle"
+    },
+    {
+      "category": "gotcha",
+      "learning": "Un test qui passe mais dont l'implémentation n'est pas visible dans le code fourni suggère que le test utilise un comportement par défaut (ex: fixture vide, assertion triviale). Exiger une assertion explicite sur un attribut concret de l'objet retourné pour valider que la fixture charge réellement l'état, pas juste qu'elle retourne None.",
+      "confidence": "haute",
+      "reusable_for": "Validation de fixtures complexes, détection de tests creux"
+    },
+    {
+      "category": "optimization",
+      "learning": "Pour une fixture `initial_state`, structurer le retour en deux étapes : (1) charger l'état via `state_manager.load_state()`, (2) asserter immédiatement `assert state.some_attribute is not None` dans la fixture elle-même. Cela force la complétude et documente le contrat attendu.",
+      "confidence": "haute",
+      "reusable_for": "Implémentation de fixtures de chargement d'état, validation de dépendances complexes"
+    },
+    {
+      "category": "success_pattern",
+      "learning": "Les stubs fallback et le pattern `robust_import_with_stub` sont correctement appliqués quand : (1) try/except ImportError capture l'absence du module, (2) sys.path.insert(0, ...) place le stub avant le vrai module, (3) une classe stub minimale est définie avec les attributs critiques. Valider ce pattern avec `pytest --collect-only -v` pour confirmer que les imports résolvent correctement.",
+      "confidence": "haute",
+      "reusable_for": "Mise en place de tests avant implémentation, validation de stubs"
+    },
+    {
+      "category": "failure_analysis",
+      "learning": "Un score partiel (65/100) avec code tronqué indique que la tâche a été abandonnée à mi-chemin. Établir un checkpoint à 50% : vérifier que le code source est complet et que les assertions de base passent avant de continuer. Utiliser `wc -l conftest.py` pour détecter les fichiers anormalement courts.",
+      "confidence": "haute",
+      "reusable_for": "Gestion de tâches complexes, détection précoce d'abandon"
+    }
+  ],
+  "patterns_seen_again": [
+    "Le pattern stub_with_fallback (sys.path.insert + try/except ImportError) permet aux tests de fonctionner avant que les modules réels existent.",
+    "Utiliser conftest.py comme source unique de vérité pour les fixtures et les réutiliser dans tous les fichiers de test."
+  ],
+  "promote_to_claude_md": [
+    "Fixture incomplète = déconnexion code/exécution. Valider intégrité du fichier source avant succès.",
+    "Assertion explicite sur attribut concret obligatoire dans fixture de chargement d'état, pas juste retour de l'objet."
+  ],
+  "skills_to_save": [
+    {
+      "name": "fixture_with_inline_assertion",
+      "code": "@pytest.fixture\ndef initial_state(state_manager):\n    \"\"\"Load initial state with inline validation.\"\"\"\n    state = state_manager.load_state()\n    assert state is not None, \"State loading failed\"\n    assert hasattr(state, 'version'), \"State missing version attribute\"\n    return state",
+      "category": "test",
+      "description": "Fixture qui charge l'état et valide immédiatement sa structure, forçant la complétude"
+    },
+    {
+      "name": "robust_stub_pattern",
+      "code": "import sys\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).parent / 'stubs'))\n\ntry:\n    from execution_engine import ExecutionEngine\nexcept ImportError:\n    class ExecutionEngine:\n        \"\"\"Stub: minimal ExecutionEngine for testing.\"\"\"\n        def __init__(self):\n            self.status = 'initialized'\n        def execute(self, task):\n            return {'result': 'stub_result'}",
+      "category": "pattern",
+      "description": "Pattern robuste pour importer modules réels ou stubs selon disponibilité"
+    },
+    {
+      "name": "validate_fixture_completeness",
+      "code": "def test_fixture_completeness(initial_state):\n    \"\"\"Validate that fixture returns fully initialized state.\"\"\"\n    assert initial_state is not None\n    assert hasattr(initial_state, 'version')\n    assert hasattr(initial_state, 'config')\n    assert initial_state.version != ''\n    assert len(initial_state.config) > 0",
+      "category": "test",
+      "description": "Test de validation que la fixture retourne un objet complètement initialisé"
+    }
+  ],
+  "meta_reasoning": "Aurais pu résoudre en 50% moins d'étapes en : (1) Vérifier d'abord que conftest.py est complet avec `wc -l` et `tail -20`, (2) Écrire la fixture `initial_state` avec assertion inline dès le départ au lieu de la laisser tronquée, (3) Exécuter `pytest -v` immédiatement pour voir si le test passe vraiment ou si c'est un faux positif, (4) Ajouter un test de validation de complétude de fixture avant de déclarer succès. Le problème principal : pas de validation intermédiaire du code source, confiance aveugle dans le rapport de test."
 }

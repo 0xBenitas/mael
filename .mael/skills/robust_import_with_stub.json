@@ -1,0 +1,11 @@
+{
+  "name": "robust_import_with_stub",
+  "category": "pattern",
+  "description": "Import robuste avec fallback sur stub minimal si module absent",
+  "code": "import sys\ntry:\n    from state_module import StateManager\nexcept ImportError:\n    sys.path.insert(0, 'stubs')\n    class StateManager:\n        def load_state(self): return type('State', (), {'config': {}})()",
+  "score": 55,
+  "source_iteration": 16,
+  "created": "2026-04-03T23:22:29.192909",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}

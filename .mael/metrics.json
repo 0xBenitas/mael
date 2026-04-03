@@ -335,12 +335,148 @@
       "score": 53,
       "details": "La tâche demande explicitement 'créer la structure de test avec cas d'entrée/sortie simples' et 'pytest tests/test_summarize.py passe avec 3 tests verts'. Le résultat fourni montre : (1) création du stub summarizer.py ✓ (2) validation import ✓ (3) MAIS aucun fichier tests/test_summarize.py créé ✗ (4) aucun test exécuté pour cette tâche ✗. Les résultats affichés concernent d'autres tests (test_autonomy.py, test_engine.py, test_executor.py) non pertinents. Le conftest.py mentionné dans l'analyse n'a pas été créé. La phase AGIR a échoué à livrer les 3 tests verts demandés. Seule la fondation (stub) a été posée, pas la structure de test elle-même.",
       "timestamp": "2026-04-03T23:09:39.458527"
+    },
+    {
+      "iteration": 4,
+      "task_id": 4,
+      "verdict": "SUCCESS",
+      "score": 94,
+      "details": "La tâche est complètement réussie. Le fichier tests/test_engine.py a été corrigé avec une stratégie robuste : (1) ajout du chemin src au sys.path pour les imports, (2) gestion gracieuse de l'ImportError avec une classe Engine stub, (3) fixtures pytest bien déclarées et réutilisables, (4) couverture de 5 cas de test pertinents. Le critère d'acceptation est validé : pytest --collect-only réussit sans erreur (5 tests collectés). L'exécution complète montre 53 tests passants incluant les 5 nouveaux. Points forts : robustesse (fallback stub), clarté du code, fixtures bien nommées. Points mineurs : la classe stub pourrait documenter qu'elle est temporaire, et on pourrait ajouter un test vérifiant que le vrai module Engine existe si disponible.",
+      "timestamp": "2026-04-03T23:14:55.771618"
+    },
+    {
+      "iteration": 5,
+      "task_id": 5,
+      "verdict": "SUCCESS",
+      "score": 93,
+      "details": "La tâche est complétée avec succès. Le fichier tests/test_autonomy.py implémente un pattern robuste d'import avec fallback stub, exactement comme demandé. Les critères d'acceptation sont entièrement satisfaits : pytest --collect-only réussit sans erreur (8 tests collectés, tous passants). La structure suit le pattern établi dans test_engine.py avec fixtures réutilisables (@pytest.fixture pour autonomy_engine et sample_context), tests d'infrastructure (test_import_successful), et tests métier (test_make_decision_basic, test_context_update, etc.). Le code est idiomatique, bien documenté avec docstrings clairs. Les tests couvrent les cas nominaux et d'intégration. Légère déduction : la couverture de cas d'erreur pourrait être plus exhaustive (pas de test d'exception explicite), et le stub AutonomyEngine pourrait valider les paramètres d'entrée pour détecter les usages incorrects.",
+      "timestamp": "2026-04-03T23:15:34.016002"
+    },
+    {
+      "iteration": 6,
+      "task_id": 6,
+      "verdict": "SUCCESS",
+      "score": 85,
+      "details": "La tâche est correctement exécutée. Le pattern robust_import_with_stub est bien implémenté avec fallback gracieux vers une classe stub si le module source n'existe pas. Les critères d'acceptation sont satisfaits : pytest --collect-only réussit sans ImportError (8 tests collectés). Les fixtures du conftest.py sont réutilisées (execution_engine). La couverture de tests est complète avec 8 cas de test couvrant initialisation, exécution basique, validation et gestion d'erreurs. Le code est idiomatique et suit les conventions pytest. Cependant, le fichier fourni est tronqué (\"def tes\" incomplet), ce qui suggère une coupure lors de la génération. Les tests réels (57 items) incluent test_executor.py et passent tous, confirmant le succès fonctionnel malgré cette troncature. La structure est réutilisable pour d'autres modules.",
+      "timestamp": "2026-04-03T23:16:15.053687"
+    },
+    {
+      "iteration": 7,
+      "task_id": 7,
+      "verdict": "SUCCESS",
+      "score": 90,
+      "details": "La tâche est complétée avec succès. Le fichier tests/test_integration.py existe, pytest le découvre correctement (1 test collecté), et aucune erreur d'import n'est levée. Les trois critères d'acceptation sont satisfaits. Le pattern stub_with_fallback est robuste et permet au test de fonctionner même si les modules réels n'existent pas encore. Les fixtures pytest sont bien structurées et réutilisables. Le code est idiomatique et suit les conventions pytest. La seule légère faiblesse : le test placeholder est minimal (assert True) et n'apporte pas de valeur fonctionnelle immédiate, bien que ce soit intentionnel pour cette phase de structure. Les imports avec sys.path.insert() fonctionnent mais pourraient être optimisés avec une configuration pytest.ini ou pyproject.toml à long terme.",
+      "timestamp": "2026-04-03T23:16:41.650917"
+    },
+    {
+      "iteration": 8,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 65,
+      "details": "La fixture `initial_state` est incomplète (code tronqué à `state_manager.`). Le test passe mais le code source n'est pas finalisé. Les stubs fallback sont bien structurés et le pattern `robust_import_with_stub` est correctement appliqué. Les fixtures individuelles (state_manager, execution_engine, autonomy_engine) sont correctes et réutilisables. Cependant, la fixture `initial_state` ne retourne pas explicitement l'état chargé avec assertion sur un attribut comme requis par les critères d'acceptation. Le test `test_initial_state_loading` passe mais son implémentation n'est pas visible dans le code fourni, ce qui suggère une incohérence entre le code écrit et le résultat rapporté.",
+      "timestamp": "2026-04-03T23:17:13.908683"
+    },
+    {
+      "iteration": 9,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est implémentée avec le pattern `robust_import_with_stub` demandé et fonctionne correctement. Les points forts : (1) fallback stub bien structuré, (2) assertions immédiates sur les attributs requis, (3) intégration dans le test suite existant. Les faiblesses : (1) le test `test_state_loading_integration` est incomplet (coupé à mi-phrase), (2) les assertions sont basiques et ne valident pas la structure complète de l'état (pas de vérification du contenu de `data`), (3) pas de test pour le cas d'erreur ou d'état invalide, (4) la fixture ne teste pas réellement le chargement depuis un fichier (mock uniquement), (5) le stub StateManager.load_state() retourne un état hardcodé sans flexibilité. Le score de 70 reflète une implémentation fonctionnelle mais incomplète.",
+      "timestamp": "2026-04-03T23:17:47.055346"
+    },
+    {
+      "iteration": 10,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est implémentée avec un pattern robuste de fallback stub, ce qui est correct. Les assertions immédiate dans la fixture valident le contrat d'état. Cependant, plusieurs lacunes réduisent le score : (1) Le code est incomplet - la fonction `test_state_attributes_exist` est tronquée et ne contient pas d'assertions finales. (2) Les critères d'acceptation demandent une 'assertion simple sur un attribut' mais la fixture en contient 3, ce qui est excessif pour une validation basique. (3) La fixture mélange responsabilités : elle charge ET valide, ce qui rend les tests moins indépendants. (4) Pas de test d'intégration réel avec un vrai StateManager - le stub masque les vrais problèmes potentiels. (5) Les tests collectés (60 items) incluent des tests non liés à cette tâche, suggérant une accumulation sans nettoyage. (6) Pas de documentation sur le format d'état attendu ou les cas d'erreur.",
+      "timestamp": "2026-04-03T23:18:20.420842"
+    },
+    {
+      "iteration": 11,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est implémentée avec un pattern robuste (stub fallback) et les assertions basiques fonctionnent. Les tests collectent correctement (6 items détectés). Cependant : (1) Le code de test est incomplet (coupé à `required_attrs = ['iteration', 'phase',`), ce qui réduit la couverture réelle. (2) Les critères d'acceptation demandent une assertion simple sur UN attribut, mais la fixture en fait 3 assertions préalables, ce qui dépasse légèrement le scope. (3) Aucune validation que l'état chargé provient réellement d'une source persistée (fichier, DB) - le stub retourne toujours un état vierge. (4) La fixture ne documente pas clairement le contrat d'état attendu. (5) Les 63 tests passent mais aucun n'exerce réellement la fixture `initial_state` (pas de `test_state_loading_basic` ou `test_state_attributes_exist` dans les résultats).",
+      "timestamp": "2026-04-03T23:19:11.157064"
+    },
+    {
+      "iteration": 12,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est fonctionnelle et les tests passent, mais plusieurs problèmes réduisent la qualité : (1) Le code de la fixture est incomplet (ligne coupée à `initial_state.data.get('initialized') is`), indiquant une implémentation inachevée. (2) Le pattern `robust_import_with_stub` crée un couplage fort entre tests et implémentation - les stubs masquent les vrais problèmes d'import. (3) Les assertions dans la fixture sont basiques (vérification de `None` et `hasattr`) sans validation sémantique réelle de l'état. (4) Pas de gestion d'erreurs pour les cas d'état invalide ou corrompu. (5) La fixture ne documente pas le contrat d'état attendu. (6) Les tests sont redondants (test_state_has_required_attributes et test_state_data_structure testent la même chose). (7) Le score moyen décline (54.1) - cette solution n'inverse pas la tendance.",
+      "timestamp": "2026-04-03T23:19:43.694517"
+    },
+    {
+      "iteration": 13,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 80,
+      "details": "La fixture `initial_state` fonctionne et les tests passent, mais plusieurs problèmes réduisent la qualité globale : (1) Le stub fallback masque l'absence réelle des modules source - la solution ne force pas l'implémentation des vrais modules. (2) Les assertions dans la fixture sont correctes mais minimales - elles valident seulement `version` et `is_valid`, pas la structure complète de `data`. (3) Le code contient une troncature (`def test_st` incomplet) qui suggère une édition inachevée. (4) La fixture ne teste pas les cas d'erreur (fichier manquant, état corrompu). (5) Le pattern `robust_import_with_stub` est pragmatique mais crée une dépendance au stub plutôt qu'à l'implémentation réelle. Les tests passent car ils testent le stub, pas le vrai système.",
+      "timestamp": "2026-04-03T23:20:17.850126"
+    },
+    {
+      "iteration": 14,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est implémentée avec un pattern robuste de fallback stub, mais présente plusieurs lacunes : (1) Le code est tronqué (assertion incomplète sur `state.phase`), ce qui indique une implémentation inachevée. (2) La fixture retourne bien un objet d'état valide avec les attributs requis (iteration, phase, context, skills, learnings), satisfaisant partiellement le critère d'acceptation. (3) L'assertion immédiate est présente mais incomplète - elle documente le contrat mais ne valide pas tous les attributs. (4) Le pattern `robust_import_with_stub` est bien appliqué avec fallback gracieux, mais la classe `MockState` manque de méthodes utilitaires (validation complète, sérialisation). (5) Les tests passent (60/60), ce qui valide l'intégration basique, mais l'absence de test spécifique pour la fixture `initial_state` elle-même est une faiblesse. (6) La structure est claire et idiomatique, mais le code tronqué réduit la qualité perçue.",
+      "timestamp": "2026-04-03T23:20:51.943772"
+    },
+    {
+      "iteration": 15,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 80,
+      "details": "La fixture `initial_state` est fonctionnelle et les tests passent, mais plusieurs problèmes réduisent la qualité globale : (1) L'assertion dans la fixture est incomplète (coupée au milieu), ce qui suggère une implémentation inachevée. (2) Les stubs fallback sont trop génériques et ne reflètent pas la vraie architecture du système. (3) La fixture ne teste que le chemin heureux sans gestion d'erreurs. (4) Le code mélange concerns : la fixture contient à la fois la logique de chargement et les stubs de fallback, réduisant la séparation des responsabilités. (5) Les 3 tests générés (test_state_loading_basic, test_state_attributes_valid, test_state_manager_integration) ne sont pas visibles dans le code fourni, suggérant une génération automatique sans validation manuelle. (6) Pas de documentation sur le contrat exact de l'état retourné.",
+      "timestamp": "2026-04-03T23:21:25.941566"
+    },
+    {
+      "iteration": 16,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 55,
+      "details": "La tâche demandait une fixture `initial_state` retournant un objet d'état valide avec assertion simple. Le code fourni est incomplet : la fixture `initial_state` est tronquée (ligne 'state = state_m' inachevée). Les points positifs : (1) pattern `robust_import_with_stub` correctement implémenté, (2) `MockState` bien structuré avec attributs valides, (3) fixture `state_manager` fonctionnelle. Les points négatifs : (1) fixture cible `initial_state` non finalisée, (2) aucune assertion visible dans la fixture, (3) le critère 'assertion simple sur un attribut' n'est pas satisfait, (4) les tests exécutés ne couvrent pas la fixture `initial_state` elle-même. L'exécution rapportée montre des tests passants mais ne valide pas la fixture incomplète.",
+      "timestamp": "2026-04-03T23:22:16.189981"
+    },
+    {
+      "iteration": 17,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 60,
+      "details": "La fixture `initial_state` est implémentée et fonctionnelle, mais présente plusieurs défauts critiques : (1) Le code est tronqué (ligne 56 incomplète : `hasattr(initial_stat`), ce qui indique une exécution partielle. (2) Le pattern de fallback avec stubs est excessif pour une simple fixture - il masque les vrais problèmes d'import plutôt que de les résoudre. (3) Les critères d'acceptation demandent une 'assertion simple sur un attribut', mais la fixture contient une assertion complexe avec deux conditions (`state is not None and hasattr(state, 'config')`). (4) Les 6 tests collectés ne sont pas tous affichés dans les résultats (seulement 3 nommés), suggérant une exécution incomplète. (5) La tendance du score moyen (55.6, declining) indique une dégradation progressive. (6) Pas de validation du contrat d'état (structure minimale requise).",
+      "timestamp": "2026-04-03T23:22:52.890612"
+    },
+    {
+      "iteration": 18,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est implémentée et fonctionnelle avec un pattern fallback robuste. Les tests passent et couvrent les attributs requis. Cependant : (1) Le code est incomplet (test_state_manager_ tronqué), (2) Le MockState est trop simpliste et ne reflète pas une structure réelle d'état, (3) L'assertion dans la fixture est redondante avec les tests eux-mêmes, (4) Pas de validation de la structure complète de l'état (types, valeurs par défaut), (5) Le pattern stub_with_fallback masque les vrais problèmes d'import plutôt que de les résoudre. Les 5 tests passent mais la couverture reste superficielle.",
+      "timestamp": "2026-04-03T23:23:25.675215"
+    },
+    {
+      "iteration": 19,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 70,
+      "details": "La fixture `initial_state` est fonctionnelle et les tests passent, mais plusieurs problèmes réduisent la qualité: (1) Le code Python est incomplet (ligne 'asser' tronquée sans fin), (2) Le pattern `stub_with_fallback` crée une dépendance circulaire entre mock et implémentation réelle - si StateManager n'existe pas, on teste le mock, pas le vrai code, (3) MockState est trop simpliste et ne reflète pas la structure réelle attendue, (4) Les assertions dans la fixture elle-même (`assert state is not None`) mélangent setup et validation, (5) Pas de gestion d'erreur pour les cas où load_state() échoue, (6) Les 5 tests collectés mais seulement 3 affichés suggèrent une exécution incomplète. Le critère d'acceptation 'assertion simple sur un attribut' est couvert mais de manière fragile.",
+      "timestamp": "2026-04-03T23:23:57.430873"
+    },
+    {
+      "iteration": 20,
+      "task_id": 8,
+      "verdict": "PARTIAL",
+      "score": 80,
+      "details": "La fixture `initial_state` est implémentée et fonctionnelle avec le pattern `robust_import_with_stub`. Les tests passent (4/4 dans test_integration.py, 61 items au total). Cependant, plusieurs faiblesses : (1) Le code de la fixture est incomplet dans le fichier affiché (coupe à `def test_initial_state_fixture(initial_state):`), suggérant une implémentation partielle. (2) La structure MockState est basique et ne reflète pas la complexité réelle d'un StateManager production. (3) Les assertions dans la fixture sont minimales (seulement `is not None` et `hasattr`), ne validant pas vraiment le contrat d'état. (4) Pas de validation des attributs critiques (metrics.success_rate doit être float, iterations doit être int). (5) Le pattern stub est correct mais la séparation entre stub et implémentation réelle n'est pas claire pour la maintenance future.",
+      "timestamp": "2026-04-03T23:24:32.281016"
     }
   ],
   "aggregate": {
-    "total_iterations": 42,
-    "success_rate": 0.238,
-    "avg_score": 49.2,
+    "total_iterations": 59,
+    "success_rate": 0.237,
+    "avg_score": 56.6,
     "mutations_applied": 0
   }
 }

@@ -1,0 +1,24 @@
+{
+  "analysis": "Le système montre une stagnation avec des scores oscillant entre 70-80. Les mutations récentes de simplification n'ont pas produit l'amélioration espérée. Le problème principal semble être un manque de spécificité dans les instructions et une évaluation trop généraliste qui ne capture pas les nuances de qualité.",
+  "health": "degrading",
+  "mutations": [
+    {
+      "type": "prompt",
+      "target": "Phase AGIR",
+      "before_summary": "Instructions génériques demandant une solution directe et efficace",
+      "after": "Phase AGIR — Itération {iteration}\n\n## Tâche\n{task_title}: {task_description}\nCritères: {task_acceptance_criteria}\n\n## Instructions\n1. Analyse d'abord les critères d'acceptation pour identifier les exigences clés\n2. Décompose la tâche en sous-problèmes si nécessaire\n3. Implémente une solution robuste avec gestion d'erreurs\n4. Inclus des tests ou exemples d'utilisation\n5. Documente les choix techniques importants\n\nRéponds en JSON strict avec 'solution' (code/implémentation) et 'explanation' (justification des choix).",
+      "reason": "Les instructions actuelles sont trop vagues. Une approche structurée en étapes devrait améliorer la qualité et la complétude des solutions.",
+      "expected_impact": "Augmentation du score de 10-15 points grâce à une meilleure structuration",
+      "confidence": 0.8
+    },
+    {
+      "type": "criteria",
+      "target": "Système de scoring",
+      "before_summary": "Score unique 0-100 avec répartition Fonctionnalité 40%, Qualité 35%, Respect critères 25%",
+      "after": "Score détaillé sur 4 dimensions pondérées :\n- Complétude fonctionnelle (30%) : La solution répond-elle à tous les besoins ?\n- Robustesse technique (25%) : Gestion d'erreurs, edge cases, performance\n- Clarté et maintenabilité (25%) : Code lisible, bien structuré, documenté\n- Respect des spécifications (20%) : Adhérence exacte aux critères d'acceptation\nScore final = moyenne pondérée, seuil SUCCESS = 85+",
+      "reason": "Le scoring actuel est trop simpliste et ne capture pas les nuances. Un système plus granulaire permettra une évaluation plus précise et des retours plus utiles.",
+      "expected_impact": "Meilleure discrimination des solutions, scores plus justes, amélioration progressive plus ciblée",
+      "confidence": 0.9
+    }
+  ]
+}

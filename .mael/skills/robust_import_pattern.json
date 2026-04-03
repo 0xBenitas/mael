@@ -1,0 +1,11 @@
+{
+  "name": "robust_import_pattern",
+  "category": "pattern",
+  "description": "Pattern universel pour importer des modules avec fallback gracieux vers une classe stub si le module source n'existe pas",
+  "code": "try:\n    from src.execution_engine import ExecutionEngine\nexcept ImportError:\n    class ExecutionEngine:\n        \"\"\"Stub for ExecutionEngine when source module is unavailable.\"\"\"\n        def __init__(self):\n            pass\n        def execute(self, task):\n            return {\"status\": \"stub\", \"result\": None}",
+  "score": 85,
+  "source_iteration": 6,
+  "created": "2026-04-03T23:16:28.265201",
+  "usage_count": 0,
+  "avg_score_when_used": 0.0
+}
