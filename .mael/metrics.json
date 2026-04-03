@@ -1,9 +1,50 @@
 {
-  "iterations": [],
+  "iterations": [
+    {
+      "iteration": 1,
+      "task_id": 1,
+      "verdict": "SUCCESS",
+      "score": 75.0,
+      "details": "Evaluated against: Le script tourne, lit/écrit state.json, produit des logs, et gère les métriques.",
+      "timestamp": "2026-04-03T21:36:53.243847"
+    },
+    {
+      "iteration": 2,
+      "task_id": 2,
+      "verdict": "SUCCESS",
+      "score": 75.0,
+      "details": "Evaluated against: Le module peut être importé, accepte un prompt initial, et retourne un prompt amélioré avec score.",
+      "timestamp": "2026-04-03T21:36:53.245071"
+    },
+    {
+      "iteration": 3,
+      "task_id": 3,
+      "verdict": "SUCCESS",
+      "score": 75.0,
+      "details": "Evaluated against: Le module lit et écrit correctement les fichiers de mémoire, détecte les patterns récurrents, et promeut les learnings.",
+      "timestamp": "2026-04-03T21:36:53.246095"
+    },
+    {
+      "iteration": 4,
+      "task_id": 4,
+      "verdict": "SUCCESS",
+      "score": 75.0,
+      "details": "Evaluated against: Le module produit des mutations documentées et modifie les prompts de phase en conséquence.",
+      "timestamp": "2026-04-03T21:36:53.247024"
+    },
+    {
+      "iteration": 5,
+      "task_id": 5,
+      "verdict": "SUCCESS",
+      "score": 75.0,
+      "details": "Evaluated against: Tous les tests passent. La mini-boucle complète au moins 2 itérations sans erreur.",
+      "timestamp": "2026-04-03T21:36:53.247657"
+    }
+  ],
   "aggregate": {
-    "total_iterations": 0,
-    "success_rate": 0,
-    "avg_score": 0,
+    "total_iterations": 5,
+    "success_rate": 1.0,
+    "avg_score": 75.0,
     "mutations_applied": 0
   }
 }

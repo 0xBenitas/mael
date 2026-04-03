@@ -1,10 +1,52 @@
 {
   "version": "0.1.0",
-  "status": "initialized",
-  "current_iteration": 0,
-  "tasks": [],
+  "status": "all_complete",
+  "current_iteration": 6,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Créer le moteur Python de la boucle MAEL",
+      "description": "Un script mael.py qui orchestre les 4 phases (AGIR/ÉVALUER/APPRENDRE/MUTER) avec gestion d'état JSON, logging structuré, et métriques automatiques. Remplace le bash par du Python propre.",
+      "status": "completed",
+      "priority": "critical",
+      "acceptance": "Le script tourne, lit/écrit state.json, produit des logs, et gère les métriques."
+    },
+    {
+      "id": 2,
+      "title": "Implémenter le module Self-Refine pour MAEL",
+      "description": "Un module selfrefine.py qui implémente la boucle generate→critique→refine. Prend un prompt et une fonction d'évaluation, itère jusqu'à convergence.",
+      "status": "completed",
+      "priority": "high",
+      "acceptance": "Le module peut être importé, accepte un prompt initial, et retourne un prompt amélioré avec score."
+    },
+    {
+      "id": 3,
+      "title": "Créer le système de mémoire persistante",
+      "description": "Un module memory.py qui gère learnings.md (lecture/écriture/promotion), CLAUDE.md (mise à jour), et metrics.json (ajout d'entrées, calcul de tendances).",
+      "status": "completed",
+      "priority": "high",
+      "acceptance": "Le module lit et écrit correctement les fichiers de mémoire, détecte les patterns récurrents, et promeut les learnings."
+    },
+    {
+      "id": 4,
+      "title": "Ajouter le module de mutation Ouroboros",
+      "description": "Un module mutator.py qui analyse les métriques et logs des N dernières itérations, propose des mutations des prompts de phase, et les applique. Le serpent se mord la queue.",
+      "status": "completed",
+      "priority": "medium",
+      "acceptance": "Le module produit des mutations documentées et modifie les prompts de phase en conséquence."
+    },
+    {
+      "id": 5,
+      "title": "Tests unitaires et intégration",
+      "description": "Tests pour chaque module + un test d'intégration qui exécute une mini-boucle complète sur une tâche jouet.",
+      "status": "completed",
+      "priority": "medium",
+      "acceptance": "Tous les tests passent. La mini-boucle complète au moins 2 itérations sans erreur."
+    }
+  ],
   "meta": {
     "created": "2026-04-03",
-    "description": "MAEL — Méta-Amélioration Évolutive en Ligne"
+    "description": "MAEL — Méta-Amélioration Évolutive en Ligne",
+    "goal": "Le système se construit lui-même. Ouroboros v0."
   }
 }
