@@ -49,13 +49,44 @@ def run_loop(max_iterations: int = 50, mutation_interval: int = 5,
         state = load_state()
 
         if all_done(state):
-            _log(f"All tasks complete after {i - 1} iterations.")
-            break
+            if not dry_run:
+                # Level 5: auto-generate next tasks
+                _log("[AUTONOMIE] All tasks done. Generating next missions...")
+                from .autonomy import add_generated_tasks
+                new = add_generated_tasks()
+                if new:
+                    for t in new:
+                        _log(f"[AUTONOMIE] New task: #{t['id']} {t['title']}")
+                    state = load_state()
+                else:
+                    _log(f"All tasks complete after {i - 1} iterations.")
+                    break
+            else:
+                _log(f"All tasks complete after {i - 1} iterations.")
+                break
 
         task = next_task(state)
         if not task:
             _log("No more tasks to process.")
             break
+
+        # Auto-decompose stuck tasks (3+ failures)
+        if not dry_run:
+            _n_fails = sum(
+                1 for m in load_metrics()["iterations"]
+                if m.get("task_id") == task["id"] and m["verdict"] == "FAIL"
+            )
+            if _n_fails >= 3 and not task.get("parent_id"):
+                _log(f"[AUTONOMIE] Task #{task['id']} stuck ({_n_fails} fails). Decomposing...")
+                from .autonomy import decompose_task
+                subtasks = decompose_task(task, last_score=0)
+                if subtasks:
+                    state["tasks"].extend(subtasks)
+                    task["status"] = "decomposed"
+                    save_state(state)
+                    for st in subtasks:
+                        _log(f"[AUTONOMIE] Subtask: #{st['id']} {st['title']}")
+                    continue  # skip to next iteration with subtask
 
         _log(f"\n{'=' * 60}")
         _log(f"ITERATION {i} — Task #{task['id']}: {task['title']}")

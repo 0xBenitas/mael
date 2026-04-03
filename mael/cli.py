@@ -1,11 +1,14 @@
-"""MAEL CLI — One command to rule them all.
+"""MAEL CLI — Le serpent qui se mord la queue.
 
 Usage:
-    python -m mael init              # Initialize .mael/ structure
-    python -m mael run [N]           # Run N iterations (default: 50)
-    python -m mael run [N] --dry-run # Run without API calls
-    python -m mael status            # Show current state
-    python -m mael reset             # Reset state for fresh run
+    python -m mael init                  # Initialize .mael/ structure
+    python -m mael run [N]               # Run N iterations (default: 50)
+    python -m mael run [N] --dry-run     # Run without API calls
+    python -m mael status                # Show current state
+    python -m mael reset                 # Reset state for fresh run
+    python -m mael doctor                # Self-diagnose and fix issues
+    python -m mael generate [goal]       # Auto-generate next tasks
+    python -m mael auto [N] [goal]       # Full autonomy: generate + run
 """
 
 import json
@@ -129,6 +132,60 @@ def cmd_reset():
     print("[MAEL] State reset. All tasks set to pending. Learnings preserved.")
 
 
+def cmd_doctor():
+    """Run self-diagnostics."""
+    from .autonomy import doctor
+    report = doctor()
+    status = "HEALTHY" if report["healthy"] else "ISSUES FOUND"
+    print(f"\n[MAEL DOCTOR] {status}")
+    for check in report["checks"]:
+        icon = "✓" if check.startswith("OK") else "✗"
+        print(f"  {icon} {check}")
+    if report["fixes"]:
+        print(f"\n[MAEL DOCTOR] Suggested fixes:")
+        for fix in report["fixes"]:
+            print(f"  → {fix['action']} task #{fix['task_id']}: {fix['reason']}")
+
+
+def cmd_generate(args: list[str]):
+    """Auto-generate next tasks."""
+    goal = " ".join(args) if args else ""
+    from .autonomy import add_generated_tasks
+    tasks = add_generated_tasks(goal)
+    if tasks:
+        print(f"[MAEL] Generated {len(tasks)} new task(s):")
+        for t in tasks:
+            print(f"  ○ [{t['id']}] {t['title']}")
+    else:
+        print("[MAEL] No tasks generated.")
+
+
+def cmd_auto(args: list[str]):
+    """Full autonomy: generate tasks + run loop."""
+    # Parse args
+    max_iter = 50
+    goal = ""
+    for a in args:
+        if a.isdigit():
+            max_iter = int(a)
+        elif a != "--dry-run":
+            goal = a
+
+    dry_run = "--dry-run" in args
+
+    if not dry_run:
+        # Generate tasks if none pending
+        state = json.loads((MAEL_DIR / "state.json").read_text())
+        pending = [t for t in state.get("tasks", []) if t["status"] == "pending"]
+        if not pending:
+            print("[MAEL AUTO] No pending tasks. Generating...")
+            cmd_generate([goal] if goal else [])
+
+    # Run loop
+    from .engine import run_loop
+    run_loop(max_iterations=max_iter, dry_run=dry_run)
+
+
 def main():
     if len(sys.argv) < 2:
         print(__doc__)
@@ -144,6 +201,12 @@ def main():
         cmd_status()
     elif command == "reset":
         cmd_reset()
+    elif command == "doctor":
+        cmd_doctor()
+    elif command == "generate":
+        cmd_generate(sys.argv[2:])
+    elif command == "auto":
+        cmd_auto(sys.argv[2:])
     else:
         print(f"[MAEL] Unknown command: {command}")
         print(__doc__)
